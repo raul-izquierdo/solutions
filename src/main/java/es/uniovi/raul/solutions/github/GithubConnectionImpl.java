@@ -1,5 +1,7 @@
 package es.uniovi.raul.solutions.github;
 
+import static java.net.http.HttpRequest.BodyPublishers.*;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.*;
@@ -138,7 +140,8 @@ public final class GithubConnectionImpl implements GithubConnection {
             String url = String.format("https://api.github.com/orgs/%s/teams/%s/repos/%s/%s",
                     organization, teamSlug, organization, repository);
             HttpRequest request = createHttpRequestBuilder(url)
-                    .PUT(HttpRequest.BodyPublishers.noBody())
+                    .header("Content-Type", "application/json")
+                    .PUT(ofString("{\"permission\":\"pull\"}")) // Grant read-only permission to the team on the repository
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
