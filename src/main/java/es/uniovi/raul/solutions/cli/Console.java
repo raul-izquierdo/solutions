@@ -16,10 +16,10 @@ public final class Console {
 
     public static boolean confirmation(String message) {
         System.out.print(format("%s (y/N): ", message));
-        try (Scanner scanner = new Scanner(System.in)) {
-            String response = scanner.nextLine().trim().toLowerCase();
-            return "y".equals(response);
-        }
+        @SuppressWarnings("resource")
+        String response = new Scanner(System.in).nextLine().trim().toLowerCase();
+        // Don't close the scanner, because showOptions will fail (System.in will be closed)
+        return "y".equals(response);
     }
 
     public static boolean confirmation(String message, Object... args) {
