@@ -57,7 +57,7 @@ public interface GithubConnection {
      * @throws IOException if a network error occurs
      * @throws InterruptedException if the operation is interrupted
      */
-    void addTeamToRepository(String organization, String repository, String teamSlug)
+    void grantAccess(String organization, String repository, String teamSlug)
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException;
 
     /**
@@ -71,7 +71,7 @@ public interface GithubConnection {
      * @throws IOException if a network error occurs
      * @throws InterruptedException if the operation is interrupted
      */
-    void removeTeamFromRepository(String organization, String teamSlug, String repository)
+    void revokeAccess(String organization, String teamSlug, String repository)
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException;
 
     /**

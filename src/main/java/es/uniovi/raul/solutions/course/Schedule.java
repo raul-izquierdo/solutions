@@ -23,7 +23,7 @@ public record Schedule(String dayOfWeek, LocalTime startTime, int minutes) {
 
     }
 
-    private static boolean isValidDayOfWeek(String dayOfWeek) {
+    public static boolean isValidDayOfWeek(String dayOfWeek) {
         notNull(dayOfWeek, "dayOfWeek");
 
         return Stream.of("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")

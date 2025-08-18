@@ -132,7 +132,7 @@ public final class GithubConnectionImpl implements GithubConnection {
     }
 
     @Override
-    public void addTeamToRepository(String organization, String repository, String teamSlug)
+    public void grantAccess(String organization, String repository, String teamSlug)
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
 
         try (HttpClient client = HttpClient.newHttpClient()) {
@@ -154,7 +154,7 @@ public final class GithubConnectionImpl implements GithubConnection {
     }
 
     @Override
-    public void removeTeamFromRepository(String organization, String teamSlug, String repository)
+    public void revokeAccess(String organization, String teamSlug, String repository)
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
 
         try (HttpClient client = HttpClient.newHttpClient()) {

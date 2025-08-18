@@ -5,6 +5,7 @@ import static es.uniovi.raul.solutions.debug.Debug.*;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CompletionException;
 
 import es.uniovi.raul.solutions.course.naming.SolutionsNaming;
 import es.uniovi.raul.solutions.github.GithubConnection;
@@ -13,6 +14,9 @@ import es.uniovi.raul.solutions.github.GithubConnection.*;
 /**
  * A Course is a layer of abstraction over a GitHub organization. Instead of teams and repositories,
  * a course shows groups and solution repositories.
+ *
+ * A Course downloads all the information on creation. If updated information is required, a new
+ * instance of the Course must be created.
  */
 
 public final class Course {
@@ -21,82 +25,57 @@ public final class Course {
     private GithubConnection githubApi;
     private Map<String, Schedule> schedule;
 
-    private List<Group> cachedGroups;
-    private List<String> cachedSolutions;
+    private List<Group> groups;
+    private List<String> solutions;
 
-    public Course(String organizationName, GithubConnection githubApi) {
+    public Course(String organizationName, GithubConnection githubApi)
+            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+
         this(organizationName, githubApi, Collections.emptyMap());
     }
 
-    public Course(String organizationName, GithubConnection githubApi, Map<String, Schedule> schedule) {
+    public Course(String organizationName, GithubConnection githubApi, Map<String, Schedule> schedule)
+            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
 
         notNull(githubApi, organizationName, schedule);
 
         this.organizationName = organizationName;
         this.githubApi = githubApi;
         this.schedule = schedule;
+
+        this.groups = downloadGroups();
+        this.solutions = downloadSolutions();
+
+    }
+
+    public GithubConnection githubConnection() {
+        return githubApi;
+    }
+
+    public String getName() {
+        return organizationName;
     }
 
     /**
      * Returns the groups in the course (teams that correspond to groups).
      */
-    public List<Group> getGroups()
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
-
-        if (cachedGroups == null)
-            cachedGroups = downloadGroups();
-
-        return cachedGroups;
-    }
-
-    public Optional<Group> findGroup(String name)
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
-
-        return getGroups().stream()
-                .filter(group -> group.name().equals(name))
-                .findFirst();
-    }
-
-    public Group getGroup(String groupName)
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
-
-        return findGroup(groupName)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Group '" + groupName + "' is not a valid group in this course"));
+    public List<Group> getGroups() {
+        return groups;
     }
 
     /**
      * Returns the names of all the repositories that correspond to solutions of assignments in the course.
      */
-    public List<String> getSolutions()
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
-
-        if (cachedSolutions == null)
-            cachedSolutions = downloadSolutions();
-
-        return cachedSolutions;
+    public List<String> getAllSolutions() {
+        return solutions;
     }
 
-    public void showSolutionToGroup(String solution, String groupName)
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+    public boolean solutionExists(String solution) {
 
-        notNull(solution, groupName);
+        notNull(solution);
 
-        if (!getSolutions().contains(solution))
-            throw new IllegalArgumentException("Solution '" + solution + "' is not a valid solution in this course");
-
-        githubApi.addTeamToRepository(organizationName, solution, getGroup(groupName).teamSlug());
-    }
-
-    public void hideSolutionFromGroup(String solution, String groupName)
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
-
-        notNull(solution, groupName);
-
-        if (!getSolutions().contains(solution))
-            throw new IllegalArgumentException("Solution '" + solution + "' is not a valid solution in this course");
-
-        githubApi.removeTeamFromRepository(organizationName, solution, getGroup(groupName).teamSlug());
+        return getAllSolutions().stream()
+                .anyMatch(sol -> sol.equals(solution));
     }
 
     //# ------------------------------------------------------------------
@@ -105,19 +84,17 @@ public final class Course {
     private List<Group> downloadGroups()
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
 
-        return githubApi
+        var solutionRepos = githubApi
                 .getTeams(organizationName).stream()
                 .filter(team -> isGroupTeam(team.displayName()))
-                .map(team -> {
-                    var group = toGroup(team.displayName());
-
-                    return new Group(
-                            group,
-                            Optional.ofNullable(schedule.get(group)),
-                            team.slug(),
-                            this);
-                })
                 .toList();
+
+        List<Group> groupList = new ArrayList<>();
+        for (var team : solutionRepos) {
+            var group = toGroup(team.displayName());
+            groupList.add(new Group(group, Optional.ofNullable(schedule.get(group)), team.slug(), this));
+        }
+        return groupList;
     }
 
     private List<String> downloadSolutions()

@@ -2,6 +2,8 @@ package es.uniovi.raul.solutions.cli;
 
 import static java.lang.String.*;
 
+import java.util.Scanner;
+
 public final class Console {
 
     public static void printError(String message) {
@@ -12,4 +14,11 @@ public final class Console {
         System.out.println(format("%n[Warning] %s%n", message));
     }
 
+    public static boolean askConfirmation(String message) {
+        System.out.print(format("%s (y/N): ", message));
+        try (Scanner scanner = new Scanner(System.in)) {
+            String response = scanner.nextLine().trim().toLowerCase();
+            return "y".equals(response);
+        }
+    }
 }
