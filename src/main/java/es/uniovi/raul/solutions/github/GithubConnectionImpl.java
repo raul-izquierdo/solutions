@@ -25,7 +25,7 @@ public final class GithubConnectionImpl implements GithubConnection {
     }
 
     @Override
-    public List<Team> getTeams(String organization)
+    public List<Team> fetchTeams(String organization)
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
 
         List<Team> teams = new ArrayList<>();
@@ -61,7 +61,7 @@ public final class GithubConnectionImpl implements GithubConnection {
     }
 
     @Override
-    public List<String> getAllRepositories(String organization)
+    public List<String> fetchAllRepositories(String organization)
             throws IOException, InterruptedException, RejectedOperationException, UnexpectedFormatException {
 
         List<String> repositories = new ArrayList<>();
@@ -96,7 +96,7 @@ public final class GithubConnectionImpl implements GithubConnection {
     }
 
     @Override
-    public List<String> getRepositoriesForTeam(String organization, String teamSlug)
+    public List<String> fetchRepositoriesForTeam(String organization, String teamSlug)
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
 
         try (HttpClient client = HttpClient.newHttpClient()) {
@@ -154,7 +154,7 @@ public final class GithubConnectionImpl implements GithubConnection {
     }
 
     @Override
-    public void revokeAccess(String organization, String teamSlug, String repository)
+    public void revokeAccess(String organization, String repository, String teamSlug)
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
 
         try (HttpClient client = HttpClient.newHttpClient()) {

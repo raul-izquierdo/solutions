@@ -5,7 +5,6 @@ import static es.uniovi.raul.solutions.debug.Debug.*;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CompletionException;
 
 import es.uniovi.raul.solutions.course.naming.SolutionsNaming;
 import es.uniovi.raul.solutions.github.GithubConnection;
@@ -43,9 +42,8 @@ public final class Course {
         this.githubApi = githubApi;
         this.schedule = schedule;
 
-        this.groups = downloadGroups();
-        this.solutions = downloadSolutions();
-
+        this.groups = fetchGroups();
+        this.solutions = fetchSolutions();
     }
 
     public GithubConnection githubConnection() {
@@ -74,18 +72,17 @@ public final class Course {
 
         notNull(solution);
 
-        return getAllSolutions().stream()
-                .anyMatch(sol -> sol.equals(solution));
+        return getAllSolutions().contains(solution);
     }
 
     //# ------------------------------------------------------------------
     //# Auxiliary methods
 
-    private List<Group> downloadGroups()
+    private List<Group> fetchGroups()
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
 
         var solutionRepos = githubApi
-                .getTeams(organizationName).stream()
+                .fetchTeams(organizationName).stream()
                 .filter(team -> isGroupTeam(team.displayName()))
                 .toList();
 
@@ -97,10 +94,10 @@ public final class Course {
         return groupList;
     }
 
-    private List<String> downloadSolutions()
+    private List<String> fetchSolutions()
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
 
-        return githubApi.getAllRepositories(organizationName).stream()
+        return githubApi.fetchAllRepositories(organizationName).stream()
                 .filter(SolutionsNaming::isSolutionRepository)
                 .toList();
     }

@@ -14,11 +14,15 @@ public final class Console {
         System.out.println(format("%n[Warning] %s%n", message));
     }
 
-    public static boolean askConfirmation(String message) {
+    public static boolean confirmation(String message) {
         System.out.print(format("%s (y/N): ", message));
         try (Scanner scanner = new Scanner(System.in)) {
             String response = scanner.nextLine().trim().toLowerCase();
             return "y".equals(response);
         }
+    }
+
+    public static boolean confirmation(String message, Object... args) {
+        return confirmation(String.format(message, args));
     }
 }

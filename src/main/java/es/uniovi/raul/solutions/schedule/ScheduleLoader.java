@@ -35,7 +35,6 @@ public class ScheduleLoader {
             }
 
             return schedules;
-
         }
     }
 

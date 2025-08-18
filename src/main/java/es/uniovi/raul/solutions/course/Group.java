@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.time.LocalTime;
 import java.util.*;
 
+import es.uniovi.raul.solutions.course.naming.SolutionsNaming;
 import es.uniovi.raul.solutions.github.GithubConnection.*;
 
 /**
@@ -18,7 +19,7 @@ public final class Group {
     private final String teamSlug;
     private Course course;
 
-    private List<String> groupSolutions;
+    private List<String> accesibleSolutions;
 
     Group(String name, Optional<Schedule> schedule, String teamSlug, Course course)
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
@@ -29,7 +30,7 @@ public final class Group {
         this.schedule = schedule;
         this.course = course;
 
-        this.groupSolutions = course.githubConnection().getRepositoriesForTeam(course.getName(), teamSlug);
+        this.accesibleSolutions = fetchAccesibleSolutions();
     }
 
     public String name() {
@@ -47,13 +48,13 @@ public final class Group {
     }
 
     public List<String> getAccesibleSolutions() {
-        return groupSolutions;
+        return accesibleSolutions;
     }
 
-    public boolean isAccesible(String solution) {
+    public boolean hasAccessTo(String solution) {
         notNull(solution);
 
-        return groupSolutions.contains(solution);
+        return accesibleSolutions.contains(solution);
     }
 
     public void grantAccess(String solution)
@@ -81,5 +82,19 @@ public final class Group {
     // Don't make the slug public. It could be used by mistake instead of the name of the group
     String teamSlug() {
         return teamSlug;
+    }
+
+    private List<String> fetchAccesibleSolutions()
+            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+
+        return course.githubConnection()
+                .fetchRepositoriesForTeam(course.getName(), teamSlug)
+                .stream()
+                .filter(SolutionsNaming::isSolutionRepository)
+                // Returned repos have the format "<org>/<repo>". We only want the repo name.
+                .map(solution -> (solution.contains("/"))
+                        ? solution.substring(solution.lastIndexOf('/') + 1)
+                        : solution)
+                .toList();
     }
 }

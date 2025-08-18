@@ -16,7 +16,7 @@ public interface GithubConnection {
      * @throws RejectedOperationException if the operation is rejected by GitHub API
      * @throws UnexpectedFormatException if the response format is unexpected
      */
-    List<Team> getTeams(String organization)
+    List<Team> fetchTeams(String organization)
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException;
 
     /**
@@ -29,7 +29,7 @@ public interface GithubConnection {
      * @throws IOException if a network error occurs
      * @throws InterruptedException if the operation is interrupted
      */
-    List<String> getAllRepositories(String organization)
+    List<String> fetchAllRepositories(String organization)
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException;
 
     /**
@@ -43,7 +43,7 @@ public interface GithubConnection {
     * @throws IOException if a network error occurs
     * @throws InterruptedException if the operation is interrupted
     */
-    List<String> getRepositoriesForTeam(String organization, String teamSlug)
+    List<String> fetchRepositoriesForTeam(String organization, String teamSlug)
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException;
 
     /**
