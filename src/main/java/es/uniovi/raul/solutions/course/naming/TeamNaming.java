@@ -30,7 +30,7 @@ public final class TeamNaming {
     public static boolean isGroupTeam(String team) {
         notNull(team, "team");
 
-        return team.startsWith(PREFIX);
+        return team.startsWith(PREFIX) && !team.substring(PREFIX.length()).isBlank();
     }
 
 }
