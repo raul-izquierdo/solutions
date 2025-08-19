@@ -2,9 +2,11 @@ package es.uniovi.raul.solutions.schedule;
 
 import static java.lang.Integer.*;
 import static java.lang.String.*;
+import static java.time.format.DateTimeFormatter.*;
 
 import java.io.IOException;
 import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -12,7 +14,7 @@ import org.apache.commons.csv.*;
 
 import es.uniovi.raul.solutions.course.Schedule;
 
-public class ScheduleLoader {
+public final class ScheduleLoader {
 
     public static Map<String, Schedule> load(String scheduleFile) throws IOException, InvalidScheduleFormat {
         Map<String, Schedule> schedules = new HashMap<>();
@@ -28,7 +30,7 @@ public class ScheduleLoader {
 
                 var group = getValue(csvRecord, 0);
                 var weekday = getValue(csvRecord, 1);
-                var startTime = LocalTime.parse(getValue(csvRecord, 2));
+                var startTime = parseTime(getValue(csvRecord, 2));
                 var minutes = toMinutes(csvRecord, 3);
 
                 schedules.put(group, new Schedule(weekday, startTime, minutes));
@@ -81,6 +83,14 @@ public class ScheduleLoader {
                         join(", ", csvRecord),
                         column,
                         message));
+    }
+
+    private static LocalTime parseTime(String input) throws InvalidScheduleFormat {
+        try {
+            return LocalTime.parse(input.trim(), ofPattern("[H:mm][HH:mm][H]"));
+        } catch (DateTimeParseException e) {
+            throw new InvalidScheduleFormat("Invalid time format: '" + input + "'. Expected `hh:mm`, `h:mm` or `h`");
+        }
     }
 
     public static class InvalidScheduleFormat extends Exception {
