@@ -12,15 +12,15 @@ import es.uniovi.raul.solutions.github.GithubConnection.UnexpectedFormatExceptio
 /**
  * Encapsulates interactive choosing logic for group and solution.
  */
-public final class ManualGrantAgent {
+final class ManualGrantAgent {
 
     private Prompter prompter;
 
-    public ManualGrantAgent(Prompter prompter) {
+    ManualGrantAgent(Prompter prompter) {
         this.prompter = prompter;
     }
 
-    public void doManualSelection(Course course)
+    void doManualSelection(Course course)
             throws IOException, UnexpectedFormatException, RejectedOperationException, InterruptedException {
 
         var chosenGroup = chooseGroup(course);
