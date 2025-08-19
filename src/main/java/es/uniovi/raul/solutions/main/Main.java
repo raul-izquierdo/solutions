@@ -23,8 +23,8 @@ public class Main {
 
         int exitCode = 0;
         try {
-            var runner = new App(Clock.systemDefaultZone(), Console::confirmation);
-            exitCode = runner.run(argumentsOpt.get());
+            var app = new App(Clock.systemDefaultZone(), Console::confirmation);
+            exitCode = app.run(argumentsOpt.get());
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
