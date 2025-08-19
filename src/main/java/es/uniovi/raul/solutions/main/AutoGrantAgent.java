@@ -50,8 +50,6 @@ public final class AutoGrantAgent {
 
         guessedGroup.grantAccess(guessedSolution);
 
-        System.out.println("Access granted.");
-
         return true;
     }
 

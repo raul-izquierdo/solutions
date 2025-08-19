@@ -53,8 +53,10 @@ public class Main {
 
         Prompter prompter = Console::confirmation;
         var suggester = new AutoGrantAgent(Clock.systemDefaultZone(), prompter);
-        if (suggester.tryAutomaticSelection(course))
+        if (suggester.tryAutomaticSelection(course)) {
+            System.out.println("Access granted.");
             return 0;
+        }
 
         var manualAgent = new ManualGrantAgent(prompter);
         manualAgent.doManualSelection(course);
