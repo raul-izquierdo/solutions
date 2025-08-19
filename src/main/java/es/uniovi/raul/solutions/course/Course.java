@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.*;
 
 import es.uniovi.raul.solutions.course.naming.SolutionsNaming;
-import es.uniovi.raul.solutions.github.GithubConnection;
+import es.uniovi.raul.solutions.github.*;
 import es.uniovi.raul.solutions.github.GithubConnection.*;
 
 /**
@@ -81,17 +81,25 @@ public final class Course {
     private List<Group> fetchGroups()
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
 
-        var solutionRepos = githubApi
+        List<Team> filteredTeams = githubApi
                 .fetchTeams(organizationName).stream()
                 .filter(team -> isGroupTeam(team.displayName()))
                 .toList();
 
-        List<Group> groupList = new ArrayList<>();
-        for (var team : solutionRepos) {
+        List<Group> groupTeams = new ArrayList<>();
+        for (var team : filteredTeams) {
             var group = toGroup(team.displayName());
-            groupList.add(new Group(group, Optional.ofNullable(schedule.get(group)), team.slug(), this));
+            groupTeams.add(new Group(group, Optional.ofNullable(schedule.get(group)), team.slug(), this));
         }
-        return groupList;
+
+        for (var entry : schedule.entrySet()) {
+            var scheduledGroup = entry.getKey();
+            if (groupTeams.stream().noneMatch(group -> group.name().equals(scheduledGroup)))
+                throw new UnexpectedFormatException(
+                        "A group in the schedule file is not present in the organization: " + scheduledGroup);
+        }
+
+        return groupTeams;
     }
 
     private List<String> fetchSolutions()

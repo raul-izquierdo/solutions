@@ -1,3 +1,4 @@
+
 package es.uniovi.raul.solutions.course;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -105,4 +106,22 @@ class CourseTest {
 
         assertTrue(course.getAllSolutions().isEmpty());
     }
+
+    @Test
+    @DisplayName("Throws if schedule contains group not present in organization teams")
+    void throwsIfScheduleGroupNotInTeams() throws Exception {
+        GithubConnection api = mock(GithubConnection.class);
+        // Only group B2 is present in teams
+        when(api.fetchTeams("org")).thenReturn(List.of(
+                new Team("group B2", "b2")));
+        when(api.fetchAllRepositories("org")).thenReturn(List.of());
+
+        Map<String, Schedule> schedule = Map.of(
+                "A1", new Schedule("monday", LocalTime.of(10, 0), 60));
+
+        UnexpectedFormatException ex = assertThrows(UnexpectedFormatException.class,
+                () -> new Course("org", api, schedule));
+        assertTrue(ex.getMessage().contains("A group in the schedule file is not present in the organization: A1"));
+    }
+
 }
