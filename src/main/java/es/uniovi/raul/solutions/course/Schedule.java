@@ -27,7 +27,7 @@ public record Schedule(String dayOfWeek, LocalTime startTime, int minutes) {
         notNull(dayOfWeek, "dayOfWeek");
 
         return Stream.of("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
-                .anyMatch(day -> day.equals(dayOfWeek));
+                .anyMatch(day -> day.equalsIgnoreCase(dayOfWeek));
     }
 
     public LocalTime getEndTime() {
