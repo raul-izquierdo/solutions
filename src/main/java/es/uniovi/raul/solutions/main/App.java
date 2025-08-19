@@ -41,8 +41,8 @@ final class App {
         var course = new Course(arguments.organization, connection, schedule);
         System.out.println("done.\n");
 
-        var suggester = new AutoGrantAgent(clock);
-        if (suggester.tryAutomaticSelection(course, prompter))
+        var suggester = new AutoGrantAgent(clock, prompter);
+        if (suggester.tryAutomaticSelection(course))
             return 0;
 
         var manualAgent = new ManualGrantAgent(prompter);

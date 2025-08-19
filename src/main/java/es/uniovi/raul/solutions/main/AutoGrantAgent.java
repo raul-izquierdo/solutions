@@ -15,11 +15,13 @@ import es.uniovi.raul.solutions.github.GithubConnection.UnexpectedFormatExceptio
 /**
  * Encapsulates time-based suggestion logic.
  */
-final class AutoGrantAgent {
+public final class AutoGrantAgent {
     private final Clock clock;
+    private final Prompter prompter;
 
-    AutoGrantAgent(Clock clock) {
+    AutoGrantAgent(Clock clock, Prompter prompter) {
         this.clock = clock;
+        this.prompter = prompter;
     }
 
     /**
@@ -28,7 +30,7 @@ final class AutoGrantAgent {
      *
      * @return true if access was granted, false otherwise
      */
-    boolean tryAutomaticSelection(Course course, Prompter prompter)
+    public boolean tryAutomaticSelection(Course course)
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
 
         var guessedGroupOpt = guessGroup(course.getGroups());
@@ -53,7 +55,7 @@ final class AutoGrantAgent {
         return true;
     }
 
-    Optional<Group> guessGroup(List<Group> groups) {
+    public Optional<Group> guessGroup(List<Group> groups) {
         var today = today();
         var now = currentTime();
         var matching = groups.stream()
@@ -62,7 +64,7 @@ final class AutoGrantAgent {
         return matching.size() == 1 ? Optional.of(matching.get(0)) : Optional.empty();
     }
 
-    Optional<String> guessSolution(Group group, List<String> allSolutions) {
+    public Optional<String> guessSolution(Group group, List<String> allSolutions) {
         return allSolutions.stream()
                 .sorted()
                 .filter(s -> !group.hasAccessTo(s))
