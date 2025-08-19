@@ -64,14 +64,14 @@ public interface GithubConnection {
      * Removes a team from a repository in the specified organization.
      *
      * @param organization Organization name
-     * @param teamSlug     Slug of the team to remove
      * @param repository   Name of the repository
+     * @param teamSlug     Slug of the team to remove
      * @throws UnexpectedFormatException if the response format is unexpected
      * @throws RejectedOperationException if the operation is rejected by GitHub API
      * @throws IOException if a network error occurs
      * @throws InterruptedException if the operation is interrupted
      */
-    void revokeAccess(String organization, String teamSlug, String repository)
+    void revokeAccess(String organization, String repository, String teamSlug)
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException;
 
     /**
