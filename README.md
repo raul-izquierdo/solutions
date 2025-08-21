@@ -1,25 +1,25 @@
 # Solutions
 
-Automate showing or hiding solutions to GitHub Classroom assignments by granting or revoking a team’s read access to solution repositories (often with a single confirmation, thanks to automatic group and solution detection).
+Easily show or hide GitHub Classroom assignment solutions by granting or revoking team read access to solution repositories—often with just a single confirmation, thanks to automatic group and solution detection.
 
-> NOTE: This application is part of a toolkit for managing classes with GitHub Classroom. It’s recommended to first read the [main repository](https://github.com/raul-izquierdo/classroom-tools) to get an overview of the project and understand where this tool fits.
+> **Note:** This tool is part of a broader toolkit for managing classes with GitHub Classroom. For an overview and to see how this fits in, check out the [main repository](https://github.com/raul-izquierdo/classroom-tools).
 
-## See it in action
+## See it in Action
 
-The key feature is automatic group and solution detection:
-- Detects the group that’s in session now by using the current time and the schedule CSV.
-- Finds the appropriate solution repository for the current class.
+The standout feature is automatic group and solution detection:
+- Instantly identifies which group is currently in session using the schedule CSV and your system time.
+- Selects the next solution repository for that group.
 
-This means you can walk into class, run the tool, press `y`, and the right solution is immediately visible to the right group.
+Just walk into class, run the tool, press `y`, and the right solution is unlocked for the right group.
 
-Consider the following `schedule.csv` file:
+Example `schedule.csv`:
 ```csv
 G1,wednesday 08:00
 G2,wednesday 09:00
 G-english-1,wednesday 10:00
 ```
 
-Then, running `solutions.jar` results in:
+Running the tool:
 ```bash
 $ java -jar solutions.jar -s schedule.csv
 
@@ -29,7 +29,7 @@ Connecting with GitHub... done.
 Access granted.
 ```
 
-When ambiguity exists, it falls back to an interactive picker:
+If there’s any ambiguity (no single group matches, or multiple groups are scheduled), you’ll get an interactive picker:
 
 ```bash
 Choose the group:
@@ -47,7 +47,7 @@ Grant access? (y/N): y
 Access granted.
 ```
 
-When a solution is selected manually, it simply flips its state (granting or revoking read access) without further prompts.
+When you select a solution manually, its access is toggled (granted or revoked) immediately.
 
 ## Usage
 
@@ -55,43 +55,42 @@ When a solution is selected manually, it simply flips its state (granting or rev
 java -jar solutions.jar [-s schedule.csv] [-o <organization>] [-t <token>]
 ```
 
-| Option              | Description                                           |
-| ------------------- | ----------------------------------------------------- |
-| `-s <schedule.csv>` | CSV file with the group schedule (default: `schedule.csv`). |
-| `-o <organization>` | GitHub organization name.                             |
-| `-t <token>`        | GitHub API access token.                              |
+| Option              | Description                                             |
+|---------------------|---------------------------------------------------------|
+| `-s <schedule.csv>` | CSV file with the group schedule (default: `schedule.csv`) |
+| `-o <organization>` | GitHub organization name                               |
+| `-t <token>`        | GitHub API access token. For more details, see [Obtaining the GitHub token](https://github.com/raul-izquierdo/classroom-tools#obtaining-the-github-token).                                |
 
-If `-o` or `-t` are not provided, the app tries to read the `GITHUB_ORG` and `GITHUB_TOKEN` variables from a `.env` file in the working directory:
+If you don’t provide `-o` or `-t`, the tool will look for `GITHUB_ORG` and `GITHUB_TOKEN` in a `.env` file in your working directory:
 ```dotenv
 GITHUB_ORG=<your-org>
 GITHUB_TOKEN=<token>
 ```
 
-For more information, see [Obtaining the GitHub token](https://github.com/raul-izquierdo/classroom-tools#obtaining-the-github-token).
 
-## Schedule file format
 
-The CSV file must have one line per group with its schedule, following this format:
+## Schedule File Format
+
+Your CSV should have one line per group, like this:
 
 ```csv
-<GroupLabel>, <weekday>, <start-time>[, <duration>]
+<groupLabel>, <weekday>, <start-time>[, <duration>]
 ```
 
-Columns:
-- groupLabel: The name of the group. Any text is accepted.
-- weekday: Day of the week — monday, tuesday, wednesday, thursday, friday, saturday, sunday.
-- start-time: One of `H:mm`, `HH:mm`, or `H` (e.g., `8:15`, `09:30`, `8`). Must be between 08:00 and 21:00.
-- duration (optional):
-  - If omitted, defaults to 2 hours.
+- **groupLabel:** Any text (the group’s name)
+- **weekday:** monday, tuesday, wednesday, thursday, friday, saturday, or sunday
+- **start-time:** `H:mm`, `HH:mm`, or `H` (e.g., `8:15`, `09:30`, `8`), between 08:00 and 21:00
+- **duration** (optional):
+  - Defaults to 2 hours if omitted
   - Accepts:
-    - hours, with suffix `h` or no suffix: `2` or `2h`
-    - minutes, with suffix `m`: `120m`
+    - hours: `2` or `2h`
+    - minutes: `120m`
 
 Notes:
-- No header row is expected.
-- If a group appears multiple times, the last row wins.
+- The CSV file should not include a header row.
+- If a group appears more than once, the last entry is used.
 
-This example shows four groups, each with a duration of 2 hours:
+Example (all 2 hours):
 ```csv
 G4, thursday, 12:00
 G3, wednesday, 8:15, 2
@@ -101,40 +100,40 @@ G2, tuesday, 09:30, 120m
 
 > NOTE: At the moment, more than one timeslot per group (multiple classes per week) is not supported. It wouldn’t be hard to add; if requested, it can be considered.
 
-## Naming rules
+## Naming Rules
 
-To let this tool identify which Teams correspond to practice groups and which repositories are solutions to assignments (since you may have teams and repositories for other purposes), it’s important to follow some naming conventions.
+To help the tool recognize which teams are groups and which repositories are solutions, follow these conventions:
 
-### Team names for groups
+### Team Names for Groups
 
-A team is considered a group when its display name starts with the prefix `group` followed by a space and the group name.
+A team is treated as a group if its display name starts with `group ` (note the space) followed by the group name.
 
-| Group | Team name       |
-|------ | ----------------|
-| 01    | group 01        |
-| i02   | group i02       |
-| lab1  | group lab1      |
-| 01_english | group 01_english |
+| Group      | Team name         |
+|------------|-------------------|
+| 01         | group 01          |
+| i02        | group i02         |
+| lab1       | group lab1        |
+| 01_english | group 01_english  |
 
-### Repository names for solutions
+### Repository Names for Solutions
 
-Requirements:
-1. A repository is considered a solution when its name ends with the suffix `solution`.
+1. A repository is considered a solution if its name ends with `solution`.
 
-    | Assignment name   | Solution repository name |
-    |-------------------|--------------------------|
-    | factorial         | factorial .solution      |
-    | listas_enlazadas  | linked-list-solution     |
-    | pila              | stack_solution           |
-    | strategy pattern  | strategy pattern solution|
+    | Assignment name   | Solution repository name   |
+    |-------------------|---------------------------|
+    | factorial         | factorial-solution        |
+    | listas_enlazadas  | linked-list-solution      |
+    | pila              | stack-solution            |
+    | strategy pattern  | strategy-pattern-solution |
 
-2. Additionally, to enable automatic selection of solutions, solution repositories should be named so that, when sorted by name, they match the order in which you want to show them during the course. A simple approach is to prefix the class number the solution belongs to, e.g., `01 factorial-solution`.
+2. For automatic solution selection, name your solution repositories so that sorting them alphabetically matches the order you want to reveal them. A simple way is to prefix them with the class number, e.g., `01-factorial-solution`.
 
-In summary, it’s recommended that:
-- The repository name starts with the class number the solution belongs to.
-- It ends with `solution`.
+Summary:
+- Start the repository name with the class number.
+- End it with `solution`.
 
-Examples of valid repository names for solutions: `01 factorial solution`, `02_listas_enlazadas_solution`, `03-pila-solution`, `04. strategy-pattern .solution` (note that the character separating the class number from the rest of the name is irrelevant).
+Examples (note that the separators doesn’t matter):
+`01-factorial-solution`, `02_listas_enlazadas_solution`, `03-pila-solution`, `04.strategy-pattern-solution`.
 
 ## License
 
