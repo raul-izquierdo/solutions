@@ -29,7 +29,9 @@ Connecting with GitHub... done.
 Access granted.
 ```
 
-If there’s any ambiguity (no single group matches, or multiple groups are scheduled), you’ll get an interactive picker:
+> **NOTE**. For this functionality to work, some naming conventions must be followed. See [Naming Rules](#naming-rules) for details.
+
+If an automatic detection is not possible, you’ll get an interactive picker:
 
 ```bash
 Choose the group:
@@ -57,7 +59,7 @@ java -jar solutions.jar [-s schedule.csv] [-o <organization>] [-t <token>]
 
 | Option              | Description                                             |
 |---------------------|---------------------------------------------------------|
-| `-s <schedule.csv>` | CSV file with the group schedule (default: `schedule.csv`) |
+| `-s <schedule.csv>` | CSV file with the group schedule (default: `schedule.csv`). See [Schedule File Format](#schedule-file-format) for details. |
 | `-o <organization>` | GitHub organization name                               |
 | `-t <token>`        | GitHub API access token. For more details, see [Obtaining the GitHub token](https://github.com/raul-izquierdo/classroom-tools#obtaining-the-github-token).                                |
 
@@ -66,8 +68,6 @@ If you don’t provide `-o` or `-t`, the tool will look for `GITHUB_ORG` and `GI
 GITHUB_ORG=<your-org>
 GITHUB_TOKEN=<token>
 ```
-
-
 
 ## Schedule File Format
 
