@@ -53,6 +53,8 @@ When you select a solution manually, its access is toggled (granted or revoked) 
 
 ## Usage
 
+The JAR can be downloaded from the [releases page](https://github.com/raul-izquierdo/solutions/releases).
+
 ```bash
 java -jar solutions.jar [-s schedule.csv] [-o <organization>] [-t <token>]
 ```
