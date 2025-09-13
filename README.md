@@ -104,38 +104,24 @@ G2, tuesday, 09:30, 120m
 
 ## Naming Rules
 
-To help the tool recognize which teams are groups and which repositories are solutions, follow these conventions:
-
-### Team Names for Groups
-
-A team is treated as a group if its display name starts with `group ` (note the space) followed by the group name.
-
-| Group      | Team name         |
-|------------|-------------------|
-| 01         | group 01          |
-| i02        | group i02         |
-| lab1       | group lab1        |
-| 01_english | group 01_english  |
+To help the tool recognize which _teams_ are _groups_ and which _repositories_ are _solutions_, follow these conventions:
 
 ### Repository Names for Solutions
 
-1. A repository is considered a solution if its name ends with `solution`.
+1. A repository is considered a _solution_ if its name **ends** with `solution`.
+2. For **automatic** solution selection, name your solution repositories so that sorting them **alphabetically** matches the order you want to _reveal_ them. A simple way to achieve this is to use a prefix that includes the class number: `01-factorial-solution`, `class_01...`, etc.
 
-    | Assignment name   | Solution repository name   |
-    |-------------------|---------------------------|
-    | factorial         | factorial-solution        |
-    | listas_enlazadas  | linked-list-solution      |
-    | pila              | stack-solution            |
-    | strategy pattern  | strategy-pattern-solution |
+In summary:
+- _Start_ the repository name with the class number.
+- _End_ it with `solution`.
 
-2. For automatic solution selection, name your solution repositories so that sorting them alphabetically matches the order you want to reveal them. A simple way is to prefix them with the class number, e.g., `01-factorial-solution`.
+Examples (note that the separators doesn’t matter): `01-factorial-solution`, `class_01_factorial_solution`, `c04.strategy-pattern.solution`.
+Choose one of these styles and stick with it for all your solution repositories.
 
-Summary:
-- Start the repository name with the class number.
-- End it with `solution`.
+### Team Names for Groups
 
-Examples (note that the separators doesn’t matter):
-`01-factorial-solution`, `02_listas_enlazadas_solution`, `03-pila-solution`, `04.strategy-pattern-solution`.
+A team is recognized as a group if its name follows the convention used by the [teams.jar](https://github.com/raul-izquierdo/teams) tool. If the teams have been created with this tool, they will already follow this convention. But if you create teams _manually_, make sure their names match the [generated team names for groups](https://github.com/raul-izquierdo/teams?tab=readme-ov-file#generated-team-names-for-groups) — specifically, prefix the group name with `group ` (note the space).
+
 
 ## License
 
