@@ -37,8 +37,8 @@ public final class GithubConnectionImpl implements GithubConnection {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() != 200)
-                throw new RejectedOperationException("Failed to get existing teams. Status: " + response.statusCode()
-                        + ". Response: " + response.body());
+                throw new RejectedOperationException("Failed to get existing teams for organization '" + organization
+                        + "'. Status: " + response.statusCode() + ". Response: " + response.body());
 
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(response.body());
@@ -73,8 +73,8 @@ public final class GithubConnectionImpl implements GithubConnection {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() != 200)
-                throw new RejectedOperationException("Failed to get repositories. Status: " + response.statusCode()
-                        + ". Response: " + response.body());
+                throw new RejectedOperationException("Failed to get repositories for organization '" + organization
+                        + "'. Status: " + response.statusCode() + ". Response: " + response.body());
 
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(response.body());
@@ -105,10 +105,10 @@ public final class GithubConnectionImpl implements GithubConnection {
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            if (response.statusCode() != 200) {
-                throw new RejectedOperationException("Failed to get repositories for team. Status: "
+            if (response.statusCode() != 200)
+                throw new RejectedOperationException("Failed to get repositories for team '" + teamSlug
+                        + "' in organization '" + organization + "'. Status: "
                         + response.statusCode() + ". Response: " + response.body());
-            }
 
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(response.body());
@@ -147,8 +147,8 @@ public final class GithubConnectionImpl implements GithubConnection {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() != 204)
-                throw new RejectedOperationException("Failed to add team to repository. Status: "
-                        + response.statusCode() + ". Response: " + response.body());
+                throw new RejectedOperationException("Failed to add team to repository in organization '" + organization
+                        + "'. Status: " + response.statusCode() + ". Response: " + response.body());
 
         }
     }
@@ -167,8 +167,8 @@ public final class GithubConnectionImpl implements GithubConnection {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() != 204)
-                throw new RejectedOperationException("Failed to remove team from repository. Status: "
-                        + response.statusCode() + ". Response: " + response.body());
+                throw new RejectedOperationException("Failed to remove team from repository in organization '"
+                        + organization + "'. Status: " + response.statusCode() + ". Response: " + response.body());
 
         }
     }
