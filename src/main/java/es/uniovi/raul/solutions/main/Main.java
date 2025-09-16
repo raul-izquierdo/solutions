@@ -51,6 +51,16 @@ public class Main {
         var course = new Course(arguments.organization, connection, schedule);
         System.out.println("done.\n");
 
+        // If there are no groups or solutions, there's nothing to do. Print an informative message and exit.
+        if (course.getGroups().isEmpty()) {
+            printWarning("No groups found in the organization. Exiting.");
+            return -1;
+        }
+        if (course.getSolutions().isEmpty()) {
+            printWarning("No solutions found in the organization. Exiting.");
+            return -1;
+        }
+
         Prompter prompter = Console::confirmation;
         var agent = new AutoGrantAgent(Clock.systemDefaultZone(), prompter);
         if (agent.tryAutomaticSelection(course)) {
