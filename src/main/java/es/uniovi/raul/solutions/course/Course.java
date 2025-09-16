@@ -92,13 +92,6 @@ public final class Course {
             groupTeams.add(new Group(group, Optional.ofNullable(schedule.get(group)), team.slug(), this));
         }
 
-        for (var entry : schedule.entrySet()) {
-            var scheduledGroup = entry.getKey();
-            if (groupTeams.stream().noneMatch(group -> group.name().equals(scheduledGroup)))
-                throw new UnexpectedFormatException(
-                        "A group in the schedule file is not present in the organization: " + scheduledGroup);
-        }
-
         return groupTeams;
     }
 
