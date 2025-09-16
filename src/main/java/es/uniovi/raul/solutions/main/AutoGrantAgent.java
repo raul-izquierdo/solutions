@@ -37,7 +37,7 @@ public final class AutoGrantAgent {
         if (guessedGroupOpt.isEmpty())
             return false;
 
-        var guessedSolutionOpt = guessSolution(guessedGroupOpt.get(), course.getAllSolutions());
+        var guessedSolutionOpt = guessSolution(guessedGroupOpt.get(), course.getSolutions());
         if (guessedSolutionOpt.isEmpty())
             return false;
 

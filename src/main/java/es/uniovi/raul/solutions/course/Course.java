@@ -64,7 +64,7 @@ public final class Course {
     /**
      * Returns the names of all the repositories that correspond to solutions of assignments in the course.
      */
-    public List<String> getAllSolutions() {
+    public List<String> getSolutions() {
         return solutions;
     }
 
@@ -72,7 +72,7 @@ public final class Course {
 
         notNull(solution);
 
-        return getAllSolutions().contains(solution);
+        return getSolutions().contains(solution);
     }
 
     //# ------------------------------------------------------------------

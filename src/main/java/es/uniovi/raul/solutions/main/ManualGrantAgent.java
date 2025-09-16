@@ -43,12 +43,12 @@ final class ManualGrantAgent {
     private String chooseSolution(Course course, Group chosenGroup) throws IOException {
 
         System.out.println("Choose the solution:");
-        int selectedSolutionIndex = showOptions(course.getAllSolutions()
+        int selectedSolutionIndex = showOptions(course.getSolutions()
                 .stream()
                 .map(solution -> solution + (chosenGroup.hasAccessTo(solution) ? " [accessible]" : " [hidden]"))
                 .toList());
 
-        return course.getAllSolutions().get(selectedSolutionIndex);
+        return course.getSolutions().get(selectedSolutionIndex);
     }
 
     private void confirmAndApply(String verb, AccessAction action, Group group, String solution)

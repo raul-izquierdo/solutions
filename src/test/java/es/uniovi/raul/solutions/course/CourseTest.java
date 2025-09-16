@@ -58,7 +58,7 @@ class CourseTest {
         assertTrue(schB2.isEmpty());
 
         // Solutions list filtered
-        var sols = course.getAllSolutions();
+        var sols = course.getSolutions();
         assertEquals(List.of("katas-solution", "lab1-solution"), sols);
 
         // solutionExists helper
@@ -104,7 +104,7 @@ class CourseTest {
         assertEquals(2, groups.size());
         assertEquals(2, groups.stream().filter(g -> g.name().equals("X")).count());
 
-        assertTrue(course.getAllSolutions().isEmpty());
+        assertTrue(course.getSolutions().isEmpty());
     }
 
     @Test
