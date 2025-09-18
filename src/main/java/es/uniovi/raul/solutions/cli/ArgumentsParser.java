@@ -69,10 +69,10 @@ public class ArgumentsParser {
         if (argValue != null)
             return argValue;
 
-        return getEnvOrDotenv(envKey).orElse(null);
+        return getEnvironmentVariable(envKey).orElse(null);
     }
 
-    private static Optional<String> getEnvOrDotenv(String key) {
+    private static Optional<String> getEnvironmentVariable(String key) {
         Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
         String value = dotenv.get(key);
         if (value == null)
