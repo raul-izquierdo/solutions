@@ -45,8 +45,7 @@ public class ArgumentsParser {
                 return Optional.empty();
             }
 
-            ensureRequiredEnvironment(arguments);
-            validate(arguments, picocli);
+            ensureRequiredEnvironment(arguments, picocli);
 
             return Optional.of(arguments);
 
@@ -58,18 +57,21 @@ public class ArgumentsParser {
     }
 
     //#  -----------------------------------
-    private static void ensureRequiredEnvironment(Arguments arguments) {
-        arguments.token = getEnvironmentIfAbsent(arguments.token, "GITHUB_TOKEN");
-        arguments.organization = getEnvironmentIfAbsent(arguments.organization, "GITHUB_ORG");
 
+    private static void ensureRequiredEnvironment(Arguments arguments, final CommandLine picocli) {
+        arguments.token = ensureArgument(arguments.token, "GITHUB_TOKEN", picocli);
+        arguments.organization = ensureArgument(arguments.organization, "GITHUB_ORG", picocli);
     }
 
     // Helper methods for environment variables
-    private static String getEnvironmentIfAbsent(String argValue, String envKey) {
+    private static String ensureArgument(String argValue, String envKey, final CommandLine picocli) {
         if (argValue != null)
             return argValue;
 
-        return getEnvironmentVariable(envKey).orElse(null);
+        return getEnvironmentVariable(envKey)
+                .orElseThrow(() -> new ParameterException(picocli,
+                        format("Missing required arguments: %s should be provided either via command line or in a '.env' file",
+                                envKey)));
     }
 
     private static Optional<String> getEnvironmentVariable(String key) {
@@ -80,9 +82,4 @@ public class ArgumentsParser {
         return Optional.ofNullable(value);
     }
 
-    private static void validate(final Arguments arguments, final CommandLine picocli) {
-        if ((arguments.token == null || arguments.organization == null))
-            throw new ParameterException(picocli,
-                    "Missing required arguments: 'GITHUB_ORG' and 'GITHUB_TOKEN' should be provided either via command line or in a '.env' file");
-    }
 }
