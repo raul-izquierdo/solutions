@@ -13,7 +13,7 @@ public class Arguments {
     @Option(names = "-o", description = "GitHub organization name. If not provided, it will try to read from the GITHUB_ORG environment variable or from a '.env' file.")
     public String organization;
 
-    @Option(names = "-s", description = "The CSV file with the groups schedule")
+    @Option(names = "-s", defaultValue = "schedule.csv", description = "The CSV file with the groups schedule")
     public String scheduleFile;
 }
 

@@ -2,11 +2,12 @@ package es.uniovi.raul.solutions.main;
 
 import static es.uniovi.raul.solutions.cli.Console.*;
 
-import java.io.IOException;
+import java.io.*;
 import java.time.Clock;
 import java.util.*;
 
 import es.uniovi.raul.solutions.cli.*;
+import es.uniovi.raul.solutions.cli.Console;
 import es.uniovi.raul.solutions.course.*;
 import es.uniovi.raul.solutions.github.GithubConnection.*;
 import es.uniovi.raul.solutions.github.GithubConnectionImpl;
@@ -77,9 +78,14 @@ public class Main {
     private static Map<String, Schedule> loadSchedule(String scheduleFile)
             throws IOException, es.uniovi.raul.solutions.schedule.ScheduleLoader.InvalidScheduleFormat {
 
-        if (scheduleFile == null) {
-            Console.printWarning("No schedule file specified, so automatic group detection will be disabled.");
-            return Collections.emptyMap();
+        // If scheduleFile is the default "schedule.csv" and doesn't exist, return empty map
+        if ("schedule.csv".equals(scheduleFile)) {
+            File file = new File(scheduleFile);
+            if (!file.exists()) {
+                Console.printWarning("Default schedule file '" + scheduleFile
+                        + "' was not found. Group detection will be disabled.");
+                return Collections.emptyMap();
+            }
         }
 
         var schedules = es.uniovi.raul.solutions.schedule.ScheduleLoader.load(scheduleFile);
