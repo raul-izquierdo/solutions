@@ -88,10 +88,14 @@ public class Main {
             }
         }
 
+        System.out.print("\nLoading schedule from '" + scheduleFile + "'... ");
+
         var schedules = es.uniovi.raul.solutions.schedule.ScheduleLoader.load(scheduleFile);
         if (schedules.isEmpty())
             throw new es.uniovi.raul.solutions.schedule.ScheduleLoader.InvalidScheduleFormat(
                     scheduleFile + " is empty.");
+
+        System.out.println("done.");
 
         return schedules;
     }
