@@ -1,48 +1,50 @@
-name: Publicar Release de Java Desktop App
+name: Build and Release Java Application
 
 on:
   push:
     tags:
-      - 'v*' # Esto activará el workflow cuando se cree una nueva etiqueta que empiece por 'v', por ejemplo, v1.0.0
+      - 'v*' # Triggers when a new tag starting with 'v' is created, e.g., v1.0.0
 
 permissions:
-  contents: write # This is the crucial line!
+  contents: write # Required to create releases
 
 jobs:
   build_and_release:
-    runs-on: ubuntu-latest # Ejecuta el trabajo en un sistema operativo Ubuntu
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout del código
-        uses: actions/checkout@v4 # Obtiene tu código del repositorio
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Configurar JDK
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: 'maven' # Si usas Maven, esto cachea las dependencias para builds más rápidos
+          cache: 'maven' # Caches dependencies for faster builds
 
-      - name: Compilar con Maven
+      - name: Build with Maven
         run: mvn clean package
 
-      - name: Obtener el nombre del archivo JAR
+      - name: Get JAR file name
         id: get_jar_name
         run: |
-          # Esto asume que tu JAR se llama similar a 'your-app-1.0.0.jar' y está en el directorio 'target/' o 'build/libs/'
-          # Ajusta esta línea para que coincida con el nombre real de tu JAR
-          JAR_FILE=$(find target/ -name "*.jar" -print -quit) # Para Maven
+          # Find the built JAR file (works for most Maven projects)
+          JAR_FILE=$(find target/ -name "*.jar" -not -name "*-sources.jar" -not -name "*-javadoc.jar" -print -quit)
+          if [ -z "$JAR_FILE" ]; then
+            echo "No JAR file found in target/ directory"
+            exit 1
+          fi
           echo "jar_file=$JAR_FILE" >> $GITHUB_OUTPUT
 
-      - name: Crear Release y Subir JAR
+      - name: Create Release and Upload JAR
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ steps.get_jar_name.outputs.jar_file }} # La ruta a tu archivo JAR
-          # files: target/*.jar # Alternativamente, si sabes que solo habrá un JAR en ese directorio
-          name: Versión ${{ github.ref_name }} # Nombre de la release, por ejemplo, "Versión v1.0.0"
-          tag_name: ${{ github.ref }} # La etiqueta de Git que disparó el workflow (ej. v1.0.0)
+          files: ${{ steps.get_jar_name.outputs.jar_file }}
+          name: Release ${{ github.ref_name }}
+          tag_name: ${{ github.ref }}
           body: |
-            Please refer to [CHANGELOG.md](https://github.com/raul-izquierdo/create_teams/blob/master/CHANGELOG.md) for details on this release.
-          prerelease: false # Cambia a 'true' si es una pre-release
+            Please refer to [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/CHANGELOG.md) for details on this release.
+          prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Token de GitHub, ya disponible por defecto
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
