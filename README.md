@@ -62,7 +62,7 @@ java -jar solutions.jar [-s schedule.csv] [-o <organization>] [-t <token>]
 | Option              | Description                                             |
 |---------------------|---------------------------------------------------------|
 | `-s <schedule.csv>` | CSV file with the group schedule (default: `schedule.csv`). See [Schedule File Format](#schedule-file-format) for details. |
-| `-o <organization>` | GitHub organization name                               |
+| `-o <organization>` | The organization where the solution repositories are located.                               |
 | `-t <token>`        | GitHub API access token. For more details, see [Obtaining the GitHub token](https://github.com/raul-izquierdo/classroom-tools#obtaining-the-github-token). |
 
 If you don't provide `-o` or `-t`, the tool will look for `GITHUB_ORG` and `GITHUB_TOKEN` in a `.env` file in your working directory:
@@ -70,6 +70,8 @@ If you don't provide `-o` or `-t`, the tool will look for `GITHUB_ORG` and `GITH
 GITHUB_ORG=<your-org>
 GITHUB_TOKEN=<token>
 ```
+
+**Note:** The required organization is the one that contains the solution repositories. Depending on your preferences, this may differ from the organization linked to GitHub Classroom. Some instructors prefer to store solutions in a separate organization from the one used for assignments (which is my recommendation). In this case, be sure to specify the organization containing the solutions here.
 
 ## Schedule File Format
 
