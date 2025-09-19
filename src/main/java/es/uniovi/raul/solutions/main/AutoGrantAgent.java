@@ -44,8 +44,9 @@ public final class AutoGrantAgent {
         var guessedGroup = guessedGroupOpt.get();
         var guessedSolution = guessedSolutionOpt.get();
 
-        if (!prompter.confirm(String.format("(now: '%s' %s) Proceed to show '%s' to group '%s'?",
-                today(), format(currentTime()), guessedSolution, guessedGroup.name())))
+        if (!prompter.confirm(
+                String.format("[%s %s] You are currently with group '%s'. Would you like to show them '%s'? (y/N):",
+                        today(), format(currentTime()), guessedGroup.name(), guessedSolution)))
             return false;
 
         guessedGroup.grantAccess(guessedSolution);

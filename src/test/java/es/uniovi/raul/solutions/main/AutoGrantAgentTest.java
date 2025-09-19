@@ -85,7 +85,7 @@ class AutoGrantAgentTest {
 
         assertTrue(result);
         assertTrue(g1.hasAccessTo("b-solution"));
-        verify(prompter).confirm(contains("Proceed to show"), any(Object[].class));
+        verify(prompter).confirm(contains(" You are currently with group"), any(Object[].class));
     }
 
     @Test

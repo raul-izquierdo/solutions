@@ -25,7 +25,7 @@ $ java -jar solutions.jar -s schedule.csv
 
 Connecting with GitHub... done.
 
-(now: 'wednesday' 08:15) Proceed to show 'factorial-solution' to group 'G1'? (y/N): y
+[wednesday 08:15] You are currently with group 'G1'. Would you like to show them 'factorial-solution'? (y/N): y
 Access granted.
 ```
 
