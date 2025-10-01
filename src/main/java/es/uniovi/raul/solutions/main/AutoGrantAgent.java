@@ -45,7 +45,7 @@ public final class AutoGrantAgent {
         var guessedSolution = guessedSolutionOpt.get();
 
         if (!prompter.confirm(
-                String.format("[%s %s] You are currently with group '%s'. Would you like to show them '%s'? (y/N):",
+                String.format("[%s %s] You are currently with group '%s'. Would you like to show them '%s'?",
                         today(), format(currentTime()), guessedGroup.name(), guessedSolution)))
             return false;
 
