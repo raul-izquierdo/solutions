@@ -50,7 +50,7 @@ public final class Course {
         return githubApi;
     }
 
-    public String getName() {
+    public String getOrganizationName() {
         return organizationName;
     }
 
@@ -73,6 +73,28 @@ public final class Course {
         notNull(solution);
 
         return getSolutions().contains(solution);
+    }
+
+    public void grantAccess(Group group, String solution)
+            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+
+        notNull(group, solution);
+
+        if (!solutionExists(solution))
+            throw new IllegalArgumentException("Solution '" + solution + "' is not a valid solution in this course");
+
+        githubApi.grantAccess(organizationName, solution, group.getSlug());
+    }
+
+    public void revokeAccess(Group group, String solution)
+            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+
+        notNull(group, solution);
+
+        if (!solutionExists(solution))
+            throw new IllegalArgumentException("Solution '" + solution + "' is not a valid solution in this course");
+
+        githubApi.revokeAccess(organizationName, solution, group.getSlug());
     }
 
     //# ------------------------------------------------------------------
@@ -100,6 +122,20 @@ public final class Course {
 
         return githubApi.fetchAllRepositories(organizationName).stream()
                 .filter(SolutionsNaming::isSolutionRepository)
+                .toList();
+    }
+
+    List<String> fetchGroupSolutions(Group group)
+            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+
+        return githubApi
+                .fetchRepositoriesForTeam(organizationName, group.getSlug())
+                .stream()
+                .filter(SolutionsNaming::isSolutionRepository)
+                // Returned repos have the format "<org>/<repo>". We only want the repo name.
+                .map(solution -> (solution.contains("/"))
+                        ? solution.substring(solution.lastIndexOf('/') + 1)
+                        : solution)
                 .toList();
     }
 }

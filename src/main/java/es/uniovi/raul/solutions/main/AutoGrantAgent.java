@@ -49,7 +49,7 @@ public final class AutoGrantAgent {
                         today(), format(currentTime()), guessedGroup.name(), guessedSolution)))
             return false;
 
-        guessedGroup.grantAccess(guessedSolution);
+        course.grantAccess(guessedGroup, guessedSolution);
 
         return true;
     }
