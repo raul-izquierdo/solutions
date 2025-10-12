@@ -38,7 +38,8 @@ class GroupTest {
                 "b-solution",
                 "misc"));
 
-        Group g = new Group("G1", Optional.of(new Schedule("monday", LocalTime.of(9, 0), 30)), "slug1", course);
+        Group g = new Group("G1", Optional.of(new Schedule("monday", LocalTime.of(9, 0), 30)), "slug1", course,
+                List.of("a-solution", "b-solution"));
 
         assertEquals("G1", g.name());
         assertTrue(g.schedule().isPresent());
@@ -62,7 +63,7 @@ class GroupTest {
         Course course = mockCourse(api, org, List.of("katas-solution"));
         when(api.fetchRepositoriesForTeam(org, "slug")).thenReturn(List.of());
 
-        Group g = new Group("G", Optional.empty(), "slug", course);
+        Group g = new Group("G", Optional.empty(), "slug", course, List.of());
 
         // Success path delegates
         g.grantAccess("katas-solution");
@@ -82,7 +83,7 @@ class GroupTest {
         Course course = mockCourse(api, org, List.of("katas-solution"));
         when(api.fetchRepositoriesForTeam(org, "slug")).thenReturn(List.of());
 
-        Group g = new Group("G", Optional.empty(), "slug", course);
+        Group g = new Group("G", Optional.empty(), "slug", course, List.of());
 
         g.revokeAccess("katas-solution");
         // Signature is (organization, repository, teamSlug)
@@ -101,10 +102,14 @@ class GroupTest {
             when(api.fetchRepositoriesForTeam(anyString(), anyString())).thenReturn(List.of());
             Course course = new Course("org", api);
 
-            assertThrows(IllegalArgumentException.class, () -> new Group(null, Optional.empty(), "slug", course));
-            assertThrows(IllegalArgumentException.class, () -> new Group("G", null, "slug", course));
-            assertThrows(IllegalArgumentException.class, () -> new Group("G", Optional.empty(), null, course));
-            assertThrows(IllegalArgumentException.class, () -> new Group("G", Optional.empty(), "slug", null));
+            assertThrows(IllegalArgumentException.class,
+                    () -> new Group(null, Optional.empty(), "slug", course, List.of()));
+            assertThrows(IllegalArgumentException.class, () -> new Group("G", null, "slug", course, List.of()));
+            assertThrows(IllegalArgumentException.class,
+                    () -> new Group("G", Optional.empty(), null, course, List.of()));
+            assertThrows(IllegalArgumentException.class,
+                    () -> new Group("G", Optional.empty(), "slug", null, List.of()));
+            assertThrows(IllegalArgumentException.class, () -> new Group("G", Optional.empty(), "slug", course, null));
         } catch (Exception e) {
             fail(e);
         }
@@ -117,7 +122,7 @@ class GroupTest {
         Course course = mockCourse(api, "org", List.of("a-solution"));
         when(api.fetchRepositoriesForTeam("org", "slug")).thenReturn(List.of("org/other"));
 
-        Group g = new Group("G", Optional.empty(), "slug", course);
+        Group g = new Group("G", Optional.empty(), "slug", course, List.of());
         assertTrue(g.getAccesibleSolutions().isEmpty());
         assertFalse(g.hasAccessTo("a-solution"));
     }
@@ -127,7 +132,8 @@ class GroupTest {
     void isScheduledCaseAndBounds() throws Exception {
         GithubApi api = mock(GithubApi.class);
         Course course = mockCourse(api, "org", List.of());
-        Group g = new Group("G", Optional.of(new Schedule("MONDAY", LocalTime.of(12, 0), 30)), "slug", course);
+        Group g = new Group("G", Optional.of(new Schedule("MONDAY", LocalTime.of(12, 0), 30)), "slug", course,
+                List.of());
         assertTrue(g.isScheduledFor("monday", LocalTime.of(12, 0)));
         assertTrue(g.isScheduledFor("MONDAY", LocalTime.of(12, 30)));
         assertFalse(g.isScheduledFor("monday", LocalTime.of(12, 31)));
@@ -141,7 +147,7 @@ class GroupTest {
         when(api.fetchAllRepositories("org")).thenReturn(List.of("a-solution"));
         when(api.fetchRepositoriesForTeam(anyString(), anyString())).thenReturn(List.of());
         Course course = new Course("org", api);
-        Group g = new Group("G", Optional.empty(), "slug", course);
+        Group g = new Group("G", Optional.empty(), "slug", course, List.of());
 
         doThrow(new GithubApi.RejectedOperationException("boom")).when(api)
                 .grantAccess("org", "a-solution", "slug");

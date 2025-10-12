@@ -111,7 +111,9 @@ public final class Course {
         List<Group> groupTeams = new ArrayList<>();
         for (var team : filteredTeams) {
             var group = toGroup(team.displayName());
-            groupTeams.add(new Group(group, Optional.ofNullable(schedule.get(group)), team.slug(), this));
+            var accessibleSolutions = fetchGroupSolutions(team.slug());
+            groupTeams.add(
+                    new Group(group, Optional.ofNullable(schedule.get(group)), team.slug(), this, accessibleSolutions));
         }
 
         return groupTeams;
@@ -125,11 +127,11 @@ public final class Course {
                 .toList();
     }
 
-    List<String> fetchGroupSolutions(Group group)
+    private List<String> fetchGroupSolutions(String teamSlug)
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
 
         return githubApi
-                .fetchRepositoriesForTeam(organizationName, group.getSlug())
+                .fetchRepositoriesForTeam(organizationName, teamSlug)
                 .stream()
                 .filter(SolutionsNaming::isSolutionRepository)
                 // Returned repos have the format "<org>/<repo>". We only want the repo name.

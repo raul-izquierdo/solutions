@@ -20,16 +20,15 @@ public final class Group {
 
     private List<String> accesibleSolutions;
 
-    Group(String name, Optional<Schedule> schedule, String teamSlug, Course course)
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
-        notNull(name, teamSlug, schedule, course);
+    Group(String name, Optional<Schedule> schedule, String teamSlug, Course course, List<String> accessibleSolutions) {
+        notNull(name, teamSlug, schedule, course, accessibleSolutions);
 
         this.name = name;
         this.teamSlug = teamSlug;
         this.schedule = schedule;
         this.course = course;
 
-        this.accesibleSolutions = course.fetchGroupSolutions(this);
+        this.accesibleSolutions = new ArrayList<>(accessibleSolutions);
     }
 
     public String name() {
