@@ -4,7 +4,7 @@ import picocli.CommandLine.*;
 
 // CHECKSTYLE:OFF
 
-@Command(name = "solutions", version = "1.2.0", showDefaultValues = true, mixinStandardHelpOptions = true, usageHelpAutoWidth = true, description = Messages.DESCRIPTION, footer = Messages.CREDITS)
+@Command(name = "solutions", version = "1.3.0", showDefaultValues = true, mixinStandardHelpOptions = true, usageHelpAutoWidth = true, description = Messages.DESCRIPTION, footer = Messages.CREDITS)
 public class Arguments {
 
     @Option(names = "-t", description = "GitHub API access token. If not provided, it will try to read from the GITHUB_TOKEN environment variable or from a '.env' file.")
