@@ -6,7 +6,7 @@ import static es.uniovi.raul.solutions.debug.Debug.*;
 import java.io.IOException;
 import java.util.*;
 
-import es.uniovi.raul.solutions.course.naming.SolutionsNaming;
+import es.uniovi.raul.solutions.course.naming.*;
 import es.uniovi.raul.solutions.github.*;
 import es.uniovi.raul.solutions.github.GithubApi.*;
 
@@ -23,6 +23,7 @@ public final class Course {
     private String organizationName;
     private GithubApi githubApi;
     private Map<String, Schedule> schedule;
+    private SolutionIdentifier solutionIdentifier;
 
     private List<Group> groups;
     private List<String> solutions;
@@ -36,14 +37,26 @@ public final class Course {
     public Course(String organizationName, GithubApi githubApi, Map<String, Schedule> schedule)
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
 
+        this(organizationName, githubApi, schedule, new RegExpIdentifier(".*solution$"));
+    }
+
+    public Course(String organizationName,
+            GithubApi githubApi,
+            Map<String, Schedule> schedule,
+            SolutionIdentifier solutionIdentifier)
+            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+
         notNull(githubApi, organizationName, schedule);
 
         this.organizationName = organizationName;
         this.githubApi = githubApi;
         this.schedule = schedule;
 
+        this.solutionIdentifier = solutionIdentifier;
+
         this.groups = fetchGroups();
         this.solutions = fetchSolutions();
+
     }
 
     public GithubApi githubConnection() {
@@ -123,7 +136,7 @@ public final class Course {
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
 
         return githubApi.fetchAllRepositories(organizationName).stream()
-                .filter(SolutionsNaming::isSolutionRepository)
+                .filter(solutionIdentifier::isSolutionRepository)
                 .toList();
     }
 
@@ -133,7 +146,7 @@ public final class Course {
         return githubApi
                 .fetchRepositoriesForTeam(organizationName, teamSlug)
                 .stream()
-                .filter(SolutionsNaming::isSolutionRepository)
+                .filter(solutionIdentifier::isSolutionRepository)
                 // Returned repos have the format "<org>/<repo>". We only want the repo name.
                 .map(solution -> (solution.contains("/"))
                         ? solution.substring(solution.lastIndexOf('/') + 1)

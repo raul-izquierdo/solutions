@@ -64,6 +64,7 @@ java -jar solutions.jar [-s schedule.csv] [-o <organization>] [-t <token>]
 | `-s <schedule.csv>` | CSV file with the group schedule (default: `schedule.csv`). See [Schedule File Format](#schedule-file-format) for details. |
 | `-o <organization>` | The organization where the solution repositories are located.                               |
 | `-t <token>`        | GitHub API access token. For more details, see [Obtaining the GitHub token](https://github.com/raul-izquierdo/classroom-tools#obtaining-the-github-token). |
+| `-r <regex>`        | Regular expression to detect solution repository names. Default = ".*solution$" (solutions are repositories whose names end with `solution`)                                    |
 
 If you don't provide `-o` or `-t`, the tool will look for `GITHUB_ORG` and `GITHUB_TOKEN` in a `.env` file in your working directory:
 ```dotenv
@@ -110,12 +111,15 @@ To help the tool recognize which _teams_ are _groups_ and which _repositories_ a
 
 ### Repository Names for Solutions
 
-1. A repository is considered a _solution_ if its name **ends** with `solution`
+1. By default, a repository is considered a _solution_ if its name **ends** with `solution` (because the default regex is `.*solution$`).
+    This can be changed using the `-r` option to provide a different regular expression. Examples:
+    - To match repositories that contains `solution` anywhere in the name: `.*solution.*`
+    - To match repositories that start with `solution`: `^solution.*`
 2. For **automatic** solution selection, name your solution repositories so that sorting them **alphabetically** matches the order you want to _reveal_ them. A simple way to achieve this is to use a prefix that includes the class number: `01-factorial-solution`, `class_01...`, etc.
 
 In summary:
-- _Start_ the repository name with the class number
-- _End_ it with `solution`
+- _Start_ the repository name with the class number.
+- _End_ it with `solution` (or change the regex accordingly).
 
 Examples (note that separators don't matter): `01-factorial-solution`, `class_01_factorial_solution`, `c04.strategy-pattern.solution`.
 Choose one of these styles and stick with it for all your solution repositories.

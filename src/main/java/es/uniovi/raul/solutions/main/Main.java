@@ -9,6 +9,7 @@ import java.util.*;
 import es.uniovi.raul.solutions.cli.*;
 import es.uniovi.raul.solutions.cli.Console;
 import es.uniovi.raul.solutions.course.*;
+import es.uniovi.raul.solutions.course.naming.RegExpIdentifier;
 import es.uniovi.raul.solutions.github.GithubApi.*;
 import es.uniovi.raul.solutions.github.GithubApiImpl;
 import es.uniovi.raul.solutions.schedule.ScheduleLoader.InvalidScheduleFormat;
@@ -49,7 +50,8 @@ public class Main {
 
         System.out.print("Connecting with Github... ");
         var connection = new GithubApiImpl(arguments.token);
-        var course = new Course(arguments.organization, connection, schedule);
+        var course = new Course(arguments.organization, connection, schedule,
+                new RegExpIdentifier(arguments.solutionRegex));
         System.out.println("done.\n");
 
         // If there are no groups or solutions, there's nothing to do. Print an informative message and exit.

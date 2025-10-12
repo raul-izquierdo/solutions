@@ -4,6 +4,7 @@ import static java.lang.String.*;
 
 import java.io.PrintStream;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import picocli.CommandLine;
@@ -45,6 +46,8 @@ public class ArgumentsParser {
                 return Optional.empty();
             }
 
+            validateSolutionRegex(arguments, picocli);
+
             ensureRequiredEnvironment(arguments, picocli);
 
             return Optional.of(arguments);
@@ -53,6 +56,15 @@ public class ArgumentsParser {
             System.err.println(format("%n[Error] %s%n", ex.getMessage()));
             picocli.usage(err);
             return Optional.empty();
+        }
+    }
+
+    private static void validateSolutionRegex(final Arguments arguments, final CommandLine picocli) {
+        try {
+            Pattern.compile(arguments.solutionRegex);
+        } catch (Exception e) {
+            throw new ParameterException(picocli, format("The provided solution regex is not valid: %s",
+                    e.getMessage()));
         }
     }
 

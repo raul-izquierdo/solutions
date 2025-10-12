@@ -15,6 +15,9 @@ public class Arguments {
 
     @Option(names = "-s", defaultValue = "schedule.csv", description = "The CSV file with the groups schedule")
     public String scheduleFile;
+
+    @Option(names = "-r", defaultValue = ".*solution$", description = "A regular expression to identify solution repositories")
+    public String solutionRegex;
 }
 
 class Messages {
