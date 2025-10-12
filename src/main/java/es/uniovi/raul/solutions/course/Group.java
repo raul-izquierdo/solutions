@@ -7,7 +7,7 @@ import java.time.LocalTime;
 import java.util.*;
 
 import es.uniovi.raul.solutions.course.naming.SolutionsNaming;
-import es.uniovi.raul.solutions.github.GithubConnection.*;
+import es.uniovi.raul.solutions.github.GithubApi.*;
 
 /**
  * Represents a group of the course and its associated github team.

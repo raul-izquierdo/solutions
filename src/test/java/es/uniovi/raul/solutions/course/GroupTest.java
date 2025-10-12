@@ -10,13 +10,13 @@ import java.util.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import es.uniovi.raul.solutions.github.GithubConnection;
-import es.uniovi.raul.solutions.github.GithubConnection.RejectedOperationException;
-import es.uniovi.raul.solutions.github.GithubConnection.UnexpectedFormatException;
+import es.uniovi.raul.solutions.github.GithubApi;
+import es.uniovi.raul.solutions.github.GithubApi.RejectedOperationException;
+import es.uniovi.raul.solutions.github.GithubApi.UnexpectedFormatException;
 
 class GroupTest {
 
-    private Course mockCourse(GithubConnection api, String orgName, List<String> allRepos)
+    private Course mockCourse(GithubApi api, String orgName, List<String> allRepos)
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
         when(api.fetchTeams(orgName)).thenReturn(List.of()); // not used for this helper
         when(api.fetchAllRepositories(orgName)).thenReturn(allRepos);
@@ -26,7 +26,7 @@ class GroupTest {
     @Test
     @DisplayName("Group exposes name, schedule, and accessible solutions from API")
     void groupPropertiesAndAccessibleSolutions() throws Exception {
-        GithubConnection api = mock(GithubConnection.class);
+        GithubApi api = mock(GithubApi.class);
         String org = "org";
 
         // Course with two solution repos available
@@ -56,7 +56,7 @@ class GroupTest {
     @Test
     @DisplayName("Group.grantAccess delegates to GithubConnection when solution exists; rejects invalid solution")
     void grantAccessSuccessAndFailure() throws Exception {
-        GithubConnection api = mock(GithubConnection.class);
+        GithubApi api = mock(GithubApi.class);
         String org = "org";
 
         Course course = mockCourse(api, org, List.of("katas-solution"));
@@ -76,7 +76,7 @@ class GroupTest {
     @Test
     @DisplayName("Group.revokeAccess delegates with correct parameter order and rejects invalid solution")
     void revokeAccessSuccessAndFailure() throws Exception {
-        GithubConnection api = mock(GithubConnection.class);
+        GithubApi api = mock(GithubApi.class);
         String org = "org";
 
         Course course = mockCourse(api, org, List.of("katas-solution"));
@@ -94,7 +94,7 @@ class GroupTest {
     @Test
     @DisplayName("Constructor null checks")
     void constructorNullChecks() {
-        GithubConnection api = mock(GithubConnection.class);
+        GithubApi api = mock(GithubApi.class);
         try {
             when(api.fetchTeams("org")).thenReturn(List.of());
             when(api.fetchAllRepositories("org")).thenReturn(List.of());
@@ -113,7 +113,7 @@ class GroupTest {
     @Test
     @DisplayName("Group with no accessible solutions returns empty list and hasAccessTo=false")
     void noAccessibleSolutions() throws Exception {
-        GithubConnection api = mock(GithubConnection.class);
+        GithubApi api = mock(GithubApi.class);
         Course course = mockCourse(api, "org", List.of("a-solution"));
         when(api.fetchRepositoriesForTeam("org", "slug")).thenReturn(List.of("org/other"));
 
@@ -125,7 +125,7 @@ class GroupTest {
     @Test
     @DisplayName("isScheduledFor is case-insensitive for day and checks inclusive bounds")
     void isScheduledCaseAndBounds() throws Exception {
-        GithubConnection api = mock(GithubConnection.class);
+        GithubApi api = mock(GithubApi.class);
         Course course = mockCourse(api, "org", List.of());
         Group g = new Group("G", Optional.of(new Schedule("MONDAY", LocalTime.of(12, 0), 30)), "slug", course);
         assertTrue(g.isScheduledFor("monday", LocalTime.of(12, 0)));
@@ -136,19 +136,19 @@ class GroupTest {
     @Test
     @DisplayName("Grant/revoke propagate API exceptions")
     void delegateErrorsPropagate() throws Exception {
-        GithubConnection api = mock(GithubConnection.class);
+        GithubApi api = mock(GithubApi.class);
         when(api.fetchTeams("org")).thenReturn(List.of());
         when(api.fetchAllRepositories("org")).thenReturn(List.of("a-solution"));
         when(api.fetchRepositoriesForTeam(anyString(), anyString())).thenReturn(List.of());
         Course course = new Course("org", api);
         Group g = new Group("G", Optional.empty(), "slug", course);
 
-        doThrow(new GithubConnection.RejectedOperationException("boom")).when(api)
+        doThrow(new GithubApi.RejectedOperationException("boom")).when(api)
                 .grantAccess("org", "a-solution", "slug");
-        assertThrows(GithubConnection.RejectedOperationException.class, () -> g.grantAccess("a-solution"));
+        assertThrows(GithubApi.RejectedOperationException.class, () -> g.grantAccess("a-solution"));
 
-        doThrow(new GithubConnection.UnexpectedFormatException("oops")).when(api)
+        doThrow(new GithubApi.UnexpectedFormatException("oops")).when(api)
                 .revokeAccess("org", "a-solution", "slug");
-        assertThrows(GithubConnection.UnexpectedFormatException.class, () -> g.revokeAccess("a-solution"));
+        assertThrows(GithubApi.UnexpectedFormatException.class, () -> g.revokeAccess("a-solution"));
     }
 }

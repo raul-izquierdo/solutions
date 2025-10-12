@@ -9,8 +9,8 @@ import java.util.Optional;
 
 import es.uniovi.raul.solutions.course.Course;
 import es.uniovi.raul.solutions.course.Group;
-import es.uniovi.raul.solutions.github.GithubConnection.RejectedOperationException;
-import es.uniovi.raul.solutions.github.GithubConnection.UnexpectedFormatException;
+import es.uniovi.raul.solutions.github.GithubApi.RejectedOperationException;
+import es.uniovi.raul.solutions.github.GithubApi.UnexpectedFormatException;
 
 /**
  * Encapsulates time-based suggestion logic.

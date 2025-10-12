@@ -13,11 +13,11 @@ import com.fasterxml.jackson.databind.*;
 /**
  * Github API implementation.
  */
-public final class GithubConnectionImpl implements GithubConnection {
+public final class GithubApiImpl implements GithubApi {
 
     private String token;
 
-    public GithubConnectionImpl(String token) {
+    public GithubApiImpl(String token) {
         if (token == null || token.isBlank())
             throw new IllegalArgumentException("Token cannot be null or blank.");
 

@@ -11,8 +11,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import es.uniovi.raul.solutions.course.*;
-import es.uniovi.raul.solutions.github.GithubConnection.RejectedOperationException;
-import es.uniovi.raul.solutions.github.GithubConnection.UnexpectedFormatException;
+import es.uniovi.raul.solutions.github.GithubApi.RejectedOperationException;
+import es.uniovi.raul.solutions.github.GithubApi.UnexpectedFormatException;
 
 class AutoGrantAgentTest {
 

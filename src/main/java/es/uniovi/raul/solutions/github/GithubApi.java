@@ -6,7 +6,7 @@ import java.util.*;
 /**
  * Interface for interacting with the GitHub API to manage teams and their members within an organization.
  */
-public interface GithubConnection {
+public interface GithubApi {
 
     /**
      * Downloads the list of teams from the specified organization.

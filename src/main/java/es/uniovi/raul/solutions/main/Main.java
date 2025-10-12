@@ -9,8 +9,8 @@ import java.util.*;
 import es.uniovi.raul.solutions.cli.*;
 import es.uniovi.raul.solutions.cli.Console;
 import es.uniovi.raul.solutions.course.*;
-import es.uniovi.raul.solutions.github.GithubConnection.*;
-import es.uniovi.raul.solutions.github.GithubConnectionImpl;
+import es.uniovi.raul.solutions.github.GithubApi.*;
+import es.uniovi.raul.solutions.github.GithubApiImpl;
 import es.uniovi.raul.solutions.schedule.ScheduleLoader.InvalidScheduleFormat;
 
 /**
@@ -48,7 +48,7 @@ public class Main {
         var schedule = loadSchedule(arguments.scheduleFile);
 
         System.out.print("Connecting with Github... ");
-        var connection = new GithubConnectionImpl(arguments.token);
+        var connection = new GithubApiImpl(arguments.token);
         var course = new Course(arguments.organization, connection, schedule);
         System.out.println("done.\n");
 

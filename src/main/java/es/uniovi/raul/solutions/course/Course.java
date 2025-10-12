@@ -8,7 +8,7 @@ import java.util.*;
 
 import es.uniovi.raul.solutions.course.naming.SolutionsNaming;
 import es.uniovi.raul.solutions.github.*;
-import es.uniovi.raul.solutions.github.GithubConnection.*;
+import es.uniovi.raul.solutions.github.GithubApi.*;
 
 /**
  * A Course is a layer of abstraction over a GitHub organization. Instead of teams and repositories,
@@ -21,19 +21,19 @@ import es.uniovi.raul.solutions.github.GithubConnection.*;
 public final class Course {
 
     private String organizationName;
-    private GithubConnection githubApi;
+    private GithubApi githubApi;
     private Map<String, Schedule> schedule;
 
     private List<Group> groups;
     private List<String> solutions;
 
-    public Course(String organizationName, GithubConnection githubApi)
+    public Course(String organizationName, GithubApi githubApi)
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
 
         this(organizationName, githubApi, Collections.emptyMap());
     }
 
-    public Course(String organizationName, GithubConnection githubApi, Map<String, Schedule> schedule)
+    public Course(String organizationName, GithubApi githubApi, Map<String, Schedule> schedule)
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
 
         notNull(githubApi, organizationName, schedule);
@@ -46,7 +46,7 @@ public final class Course {
         this.solutions = fetchSolutions();
     }
 
-    public GithubConnection githubConnection() {
+    public GithubApi githubConnection() {
         return githubApi;
     }
 

@@ -10,9 +10,9 @@ import java.util.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import es.uniovi.raul.solutions.github.GithubConnection;
-import es.uniovi.raul.solutions.github.GithubConnection.RejectedOperationException;
-import es.uniovi.raul.solutions.github.GithubConnection.UnexpectedFormatException;
+import es.uniovi.raul.solutions.github.GithubApi;
+import es.uniovi.raul.solutions.github.GithubApi.RejectedOperationException;
+import es.uniovi.raul.solutions.github.GithubApi.UnexpectedFormatException;
 import es.uniovi.raul.solutions.github.Team;
 
 class CourseTest {
@@ -21,7 +21,7 @@ class CourseTest {
     @DisplayName("Course loads groups filtered by 'group ' prefix and loads solutions by naming rule")
     void courseLoadsGroupsAndSolutions()
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
-        GithubConnection api = mock(GithubConnection.class);
+        GithubApi api = mock(GithubApi.class);
 
         // Teams: only those that start with "group " become Course groups
         when(api.fetchTeams("org")).thenReturn(List.of(
@@ -69,7 +69,7 @@ class CourseTest {
     @DisplayName("Course propagates API exceptions from GithubConnection")
     void coursePropagatesApiErrors()
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
-        GithubConnection api = mock(GithubConnection.class);
+        GithubApi api = mock(GithubApi.class);
         when(api.fetchTeams("org")).thenThrow(new RejectedOperationException("rate limited"));
 
         assertThrows(RejectedOperationException.class, () -> new Course("org", api));
@@ -78,7 +78,7 @@ class CourseTest {
     @Test
     @DisplayName("Null checks in Course constructor")
     void courseNullChecks() {
-        GithubConnection api = mock(GithubConnection.class);
+        GithubApi api = mock(GithubApi.class);
         assertThrows(IllegalArgumentException.class, () -> new Course(null, api));
         assertThrows(IllegalArgumentException.class, () -> new Course("org", null));
         assertThrows(IllegalArgumentException.class, () -> new Course("org", api, null));
@@ -87,7 +87,7 @@ class CourseTest {
     @Test
     @DisplayName("Course handles empty teams and repositories, and ignores non-group teams")
     void courseHandlesEmptyAndNonGroup() throws Exception {
-        GithubConnection api = mock(GithubConnection.class);
+        GithubApi api = mock(GithubApi.class);
         when(api.fetchTeams("org")).thenReturn(List.of(
                 new Team("random", "r"),
                 new Team("group ", "empty"), // becomes empty group name
@@ -109,7 +109,7 @@ class CourseTest {
     @Test
     @DisplayName("Course handles schedule with group not present in organization teams")
     void courseHandlesScheduleGroupNotInTeams() throws Exception {
-        GithubConnection api = mock(GithubConnection.class);
+        GithubApi api = mock(GithubApi.class);
         // Only group B2 is present in teams
         when(api.fetchTeams("org")).thenReturn(List.of(
                 new Team("group B2", "b2")));
