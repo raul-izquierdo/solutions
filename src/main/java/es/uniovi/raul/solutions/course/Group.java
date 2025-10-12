@@ -79,10 +79,7 @@ public final class Group {
         course.githubConnection().revokeAccess(course.getName(), solution, teamSlug);
     }
 
-    // Don't make the slug public. It could be used by mistake instead of the name of the group
-    String teamSlug() {
-        return teamSlug;
-    }
+    //# Private Methods -----------------------------------
 
     private List<String> fetchAccesibleSolutions()
             throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
