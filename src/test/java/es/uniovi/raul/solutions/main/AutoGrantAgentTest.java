@@ -59,13 +59,6 @@ class AutoGrantAgentTest {
                 .thenAnswer(inv -> s.includes(inv.getArgument(0), inv.getArgument(1)));
         Set<String> access = new HashSet<>(Arrays.asList(hasAccess));
         when(g.hasAccessTo(anyString())).thenAnswer(inv -> access.contains(inv.getArgument(0)));
-        doAnswer(new org.mockito.stubbing.Answer<Void>() {
-            @Override
-            public Void answer(org.mockito.invocation.InvocationOnMock inv) throws Exception {
-                access.add(inv.getArgument(0));
-                return null;
-            }
-        }).when(g).grantAccess(anyString());
         return g;
     }
 
@@ -76,13 +69,6 @@ class AutoGrantAgentTest {
         when(g.isScheduledFor(anyString(), any())).thenReturn(false);
         Set<String> access = new HashSet<>(Arrays.asList(hasAccess));
         when(g.hasAccessTo(anyString())).thenAnswer(inv -> access.contains(inv.getArgument(0)));
-        doAnswer(new org.mockito.stubbing.Answer<Void>() {
-            @Override
-            public Void answer(org.mockito.invocation.InvocationOnMock inv) throws Exception {
-                access.add(inv.getArgument(0));
-                return null;
-            }
-        }).when(g).grantAccess(anyString());
         return g;
     }
 

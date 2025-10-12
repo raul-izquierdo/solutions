@@ -113,7 +113,7 @@ public final class Course {
             var group = toGroup(team.displayName());
             var accessibleSolutions = fetchGroupSolutions(team.slug());
             groupTeams.add(
-                    new Group(group, Optional.ofNullable(schedule.get(group)), team.slug(), this, accessibleSolutions));
+                    new Group(group, team.slug(), accessibleSolutions, Optional.ofNullable(schedule.get(group))));
         }
 
         return groupTeams;

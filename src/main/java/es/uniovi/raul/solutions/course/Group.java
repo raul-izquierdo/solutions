@@ -2,11 +2,8 @@ package es.uniovi.raul.solutions.course;
 
 import static es.uniovi.raul.solutions.debug.Debug.*;
 
-import java.io.IOException;
 import java.time.LocalTime;
 import java.util.*;
-
-import es.uniovi.raul.solutions.github.GithubApi.*;
 
 /**
  * Represents a group of the course and its associated github team.
@@ -14,19 +11,16 @@ import es.uniovi.raul.solutions.github.GithubApi.*;
 public final class Group {
 
     private final String name;
-    private final Optional<Schedule> schedule;
     private final String teamSlug;
-    private Course course;
-
     private List<String> accesibleSolutions;
+    private final Optional<Schedule> schedule;
 
-    Group(String name, Optional<Schedule> schedule, String teamSlug, Course course, List<String> accessibleSolutions) {
-        notNull(name, teamSlug, schedule, course, accessibleSolutions);
+    Group(String name, String teamSlug, List<String> accessibleSolutions, Optional<Schedule> schedule) {
+        notNull(name, teamSlug, schedule, accessibleSolutions);
 
         this.name = name;
         this.teamSlug = teamSlug;
         this.schedule = schedule;
-        this.course = course;
 
         this.accesibleSolutions = new ArrayList<>(accessibleSolutions);
     }
@@ -57,18 +51,6 @@ public final class Group {
         notNull(solution);
 
         return accesibleSolutions.contains(solution);
-    }
-
-    public void grantAccess(String solution)
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
-
-        course.grantAccess(this, solution);
-    }
-
-    public void revokeAccess(String solution)
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
-
-        course.revokeAccess(this, solution);
     }
 
 }
