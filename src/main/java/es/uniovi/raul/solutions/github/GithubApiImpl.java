@@ -15,13 +15,16 @@ import com.fasterxml.jackson.databind.*;
  */
 public final class GithubApiImpl implements GithubApi {
 
-    private String token;
+    private final String token;
+    private final HttpClient client;
+    private final ObjectMapper mapper;
 
     public GithubApiImpl(String token) {
         if (token == null || token.isBlank())
             throw new IllegalArgumentException("Token cannot be null or blank.");
-
         this.token = token;
+        this.client = HttpClient.newHttpClient();
+        this.mapper = new ObjectMapper();
     }
 
     @Override
@@ -29,35 +32,29 @@ public final class GithubApiImpl implements GithubApi {
             throws GithubApiException, IOException, InterruptedException {
 
         List<Team> teams = new ArrayList<>();
-        try (HttpClient client = HttpClient.newHttpClient()) {
+        String url = "https://api.github.com/orgs/" + organization + "/teams";
+        HttpRequest request = createHttpRequestBuilder(url).build();
 
-            String url = "https://api.github.com/orgs/" + organization + "/teams";
-            HttpRequest request = createHttpRequestBuilder(url).build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200)
+            throw new RejectedOperationException("Failed to get existing teams for organization '" + organization
+                    + "'. Status: " + response.statusCode() + ". Response: " + response.body());
 
-            if (response.statusCode() != 200)
-                throw new RejectedOperationException("Failed to get existing teams for organization '" + organization
-                        + "'. Status: " + response.statusCode() + ". Response: " + response.body());
+        JsonNode root = mapper.readTree(response.body());
+        if (!root.isArray())
+            throw new UnexpectedFormatException("Expected a JSON array for teams, got: " + root.getNodeType());
 
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(response.body());
-
-            if (!root.isArray())
-                throw new UnexpectedFormatException("Expected a JSON array for teams, got: " + root.getNodeType());
-
-            for (JsonNode node : root) {
-                JsonNode nameNode = node.get("name");
-                JsonNode slugNode = node.get("slug");
-                if (nameNode == null || !nameNode.isTextual() || slugNode == null || !slugNode.isTextual())
-                    throw new UnexpectedFormatException(
-                            "Expected 'name' and 'slug' fields of type string in each team object, got: "
-                                    + node.toString());
-
-                teams.add(new Team(nameNode.asText(), slugNode.asText()));
-            }
-            return teams;
+        for (JsonNode node : root) {
+            JsonNode nameNode = node.get("name");
+            JsonNode slugNode = node.get("slug");
+            if (nameNode == null || !nameNode.isTextual() || slugNode == null || !slugNode.isTextual())
+                throw new UnexpectedFormatException(
+                        "Expected 'name' and 'slug' fields of type string in each team object, got: "
+                                + node.toString());
+            teams.add(new Team(nameNode.asText(), slugNode.asText()));
         }
+        return teams;
     }
 
     @Override
@@ -65,112 +62,85 @@ public final class GithubApiImpl implements GithubApi {
             throws GithubApiException, IOException, InterruptedException {
 
         List<String> repositories = new ArrayList<>();
+        String url = String.format("https://api.github.com/orgs/%s/repos", organization);
+        HttpRequest request = createHttpRequestBuilder(url).build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        try (HttpClient client = HttpClient.newHttpClient()) {
-            String url = String.format("https://api.github.com/orgs/%s/repos", organization);
-            HttpRequest request = createHttpRequestBuilder(url).build();
+        if (response.statusCode() != 200)
+            throw new RejectedOperationException("Failed to get repositories for organization '" + organization
+                    + "'. Status: " + response.statusCode() + ". Response: " + response.body());
 
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        JsonNode root = mapper.readTree(response.body());
+        if (!root.isArray())
+            throw new UnexpectedFormatException(
+                    "Expected a JSON array for repositories, got: " + root.getNodeType());
 
-            if (response.statusCode() != 200)
-                throw new RejectedOperationException("Failed to get repositories for organization '" + organization
-                        + "'. Status: " + response.statusCode() + ". Response: " + response.body());
-
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(response.body());
-
-            if (!root.isArray())
+        for (JsonNode node : root) {
+            JsonNode nameNode = node.get("name");
+            if (nameNode == null || !nameNode.isTextual())
                 throw new UnexpectedFormatException(
-                        "Expected a JSON array for repositories, got: " + root.getNodeType());
-
-            for (JsonNode node : root) {
-                JsonNode nameNode = node.get("name");
-                if (nameNode == null || !nameNode.isTextual())
-                    throw new UnexpectedFormatException(
-                            "Expected 'name' field of type string in each repository object, got: " + node.toString());
-
-                repositories.add(nameNode.asText());
-            }
-            return repositories;
+                        "Expected 'name' field of type string in each repository object, got: " + node.toString());
+            repositories.add(nameNode.asText());
         }
+        return repositories;
     }
 
     @Override
     public List<String> fetchRepositoriesForTeam(String organization, String teamSlug)
             throws GithubApiException, IOException, InterruptedException {
+        String url = String.format("https://api.github.com/orgs/%s/teams/%s/repos", organization, teamSlug);
+        HttpRequest request = createHttpRequestBuilder(url).build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        try (HttpClient client = HttpClient.newHttpClient()) {
-            String url = String.format("https://api.github.com/orgs/%s/teams/%s/repos", organization, teamSlug);
-            HttpRequest request = createHttpRequestBuilder(url).build();
+        if (response.statusCode() != 200)
+            throw new RejectedOperationException("Failed to get repositories for team '" + teamSlug
+                    + "' in organization '" + organization + "'. Status: "
+                    + response.statusCode() + ". Response: " + response.body());
 
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        JsonNode root = mapper.readTree(response.body());
+        if (!root.isArray())
+            throw new UnexpectedFormatException(
+                    "Expected a JSON array for the team's repositories, got: " + root.getNodeType());
 
-            if (response.statusCode() != 200)
-                throw new RejectedOperationException("Failed to get repositories for team '" + teamSlug
-                        + "' in organization '" + organization + "'. Status: "
-                        + response.statusCode() + ". Response: " + response.body());
-
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(response.body());
-
-            if (!root.isArray())
+        List<String> repositories = new ArrayList<>();
+        for (JsonNode node : root) {
+            JsonNode fullNameNode = node.get("full_name");
+            if (fullNameNode == null || !fullNameNode.isTextual())
                 throw new UnexpectedFormatException(
-                        "Expected a JSON array for the team's repositories, got: " + root.getNodeType());
-
-            List<String> repositories = new ArrayList<>();
-            for (JsonNode node : root) {
-                JsonNode fullNameNode = node.get("full_name");
-                if (fullNameNode == null || !fullNameNode.isTextual())
-                    throw new UnexpectedFormatException(
-                            "Expected 'full_name' field of type string in each repository object, got: "
-                                    + node.toString());
-
-                repositories.add(fullNameNode.asText());
-            }
-            return repositories;
+                        "Expected 'full_name' field of type string in each repository object, got: "
+                                + node.toString());
+            repositories.add(fullNameNode.asText());
         }
+        return repositories;
     }
 
     @Override
     public void grantAccess(String organization, String repository, String teamSlug)
             throws GithubApiException, IOException, InterruptedException {
-
-        try (HttpClient client = HttpClient.newHttpClient()) {
-
-            String url = String.format("https://api.github.com/orgs/%s/teams/%s/repos/%s/%s",
-                    organization, teamSlug, organization, repository);
-            HttpRequest request = createHttpRequestBuilder(url)
-                    .header("Content-Type", "application/json")
-                    .PUT(ofString("{\"permission\":\"pull\"}")) // Grant read-only permission to the team on the repository
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() != 204)
-                throw new RejectedOperationException("Failed to add team to repository in organization '" + organization
-                        + "'. Status: " + response.statusCode() + ". Response: " + response.body());
-
-        }
+        String url = String.format("https://api.github.com/orgs/%s/teams/%s/repos/%s/%s",
+                organization, teamSlug, organization, repository);
+        HttpRequest request = createHttpRequestBuilder(url)
+                .header("Content-Type", "application/json")
+                .PUT(ofString("{\"permission\":\"pull\"}"))
+                .build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 204)
+            throw new RejectedOperationException("Failed to add team to repository in organization '" + organization
+                    + "'. Status: " + response.statusCode() + ". Response: " + response.body());
     }
 
     @Override
     public void revokeAccess(String organization, String repository, String teamSlug)
             throws GithubApiException, IOException, InterruptedException {
-
-        try (HttpClient client = HttpClient.newHttpClient()) {
-            String url = String.format("https://api.github.com/orgs/%s/teams/%s/repos/%s/%s",
-                    organization, teamSlug, organization, repository);
-            HttpRequest request = createHttpRequestBuilder(url)
-                    .DELETE()
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() != 204)
-                throw new RejectedOperationException("Failed to remove team from repository in organization '"
-                        + organization + "'. Status: " + response.statusCode() + ". Response: " + response.body());
-
-        }
+        String url = String.format("https://api.github.com/orgs/%s/teams/%s/repos/%s/%s",
+                organization, teamSlug, organization, repository);
+        HttpRequest request = createHttpRequestBuilder(url)
+                .DELETE()
+                .build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 204)
+            throw new RejectedOperationException("Failed to remove team from repository in organization '"
+                    + organization + "'. Status: " + response.statusCode() + ". Response: " + response.body());
     }
 
     //# Auxiliary methods -----------------------------------
