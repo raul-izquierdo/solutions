@@ -104,11 +104,17 @@ public final class Group {
                 .fetchRepositoriesForTeam(organizationName, teamSlug)
                 .stream()
                 .filter(solutionIdentifier::isSolutionRepository)
-                // Returned repos have the format "<org>/<repo>". We only want the repo name.
-                .map(solution -> (solution.contains("/"))
-                        ? solution.substring(solution.lastIndexOf('/') + 1)
-                        : solution)
+                .map(this::extractRepositoryName)
                 .toList();
+    }
+
+    /**
+     * Extracts the repository name from a full name that may include organization prefix.
+     * For example: "org/repo" -> "repo", "repo" -> "repo"
+     */
+    private String extractRepositoryName(String fullName) {
+        int lastSlash = fullName.lastIndexOf('/');
+        return lastSlash >= 0 ? fullName.substring(lastSlash + 1) : fullName;
     }
 
 }
