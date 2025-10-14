@@ -91,4 +91,68 @@ class GroupTest {
         assertFalse(g.isScheduledFor("monday", LocalTime.of(12, 31)));
     }
 
+    @Test
+    @DisplayName("Group.grantAccess delegates to GithubApi and invalidates cache")
+    void grantAccessDelegatesAndInvalidatesCache() throws Exception {
+        GithubApi api = mock(GithubApi.class);
+        SolutionIdentifier identifier = mock(SolutionIdentifier.class);
+
+        when(api.fetchRepositoriesForTeam("org", "team-slug"))
+                .thenReturn(List.of("org/solution1"))
+                .thenReturn(List.of("org/solution1", "org/solution2"));
+        when(identifier.isSolutionRepository(anyString())).thenReturn(true);
+
+        Group group = new Group("G1", "team-slug", Optional.empty(), "org", api, identifier);
+
+        // Initial state - only solution1
+        assertEquals(List.of("solution1"), group.getAccesibleSolutions());
+
+        // Grant access to solution2
+        group.grantAccess("solution2");
+        verify(api).grantAccess("org", "solution2", "team-slug");
+
+        // Cache should be invalidated and refetch on next call
+        assertEquals(List.of("solution1", "solution2"), group.getAccesibleSolutions());
+        verify(api, times(2)).fetchRepositoriesForTeam("org", "team-slug");
+    }
+
+    @Test
+    @DisplayName("Group.revokeAccess delegates to GithubApi and invalidates cache")
+    void revokeAccessDelegatesAndInvalidatesCache() throws Exception {
+        GithubApi api = mock(GithubApi.class);
+        SolutionIdentifier identifier = mock(SolutionIdentifier.class);
+
+        when(api.fetchRepositoriesForTeam("org", "team-slug"))
+                .thenReturn(List.of("org/solution1", "org/solution2"))
+                .thenReturn(List.of("org/solution1"));
+        when(identifier.isSolutionRepository(anyString())).thenReturn(true);
+
+        Group group = new Group("G1", "team-slug", Optional.empty(), "org", api, identifier);
+
+        // Initial state - both solutions
+        assertEquals(List.of("solution1", "solution2"), group.getAccesibleSolutions());
+
+        // Revoke access to solution2
+        group.revokeAccess("solution2");
+        verify(api).revokeAccess("org", "solution2", "team-slug");
+
+        // Cache should be invalidated and refetch on next call
+        assertEquals(List.of("solution1"), group.getAccesibleSolutions());
+        verify(api, times(2)).fetchRepositoriesForTeam("org", "team-slug");
+    }
+
+    @Test
+    @DisplayName("Group.grantAccess null check")
+    void grantAccessNullCheck() {
+        Group g = createTestGroup("G", "slug", List.of(), Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> g.grantAccess(null));
+    }
+
+    @Test
+    @DisplayName("Group.revokeAccess null check")
+    void revokeAccessNullCheck() {
+        Group g = createTestGroup("G", "slug", List.of(), Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> g.revokeAccess(null));
+    }
+
 }

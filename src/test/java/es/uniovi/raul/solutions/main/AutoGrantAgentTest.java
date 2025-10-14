@@ -27,23 +27,6 @@ class AutoGrantAgentTest {
         when(course.getSolutions()).thenReturn(solutions);
         when(course.solutionExists(anyString())).thenAnswer(inv -> solutions.contains(inv.getArgument(0)));
 
-        // Set up grantAccess to update the corresponding group's hasAccessTo behavior
-        try {
-            doAnswer(new org.mockito.stubbing.Answer<Void>() {
-                @Override
-                public Void answer(org.mockito.invocation.InvocationOnMock inv) throws Exception {
-                    Group group = inv.getArgument(0);
-                    String solution = inv.getArgument(1);
-                    // Update the mocked group to return true for hasAccessTo this solution
-                    when(group.hasAccessTo(solution)).thenReturn(true);
-                    return null;
-                }
-            }).when(course).grantAccess(any(Group.class), anyString());
-        } catch (Exception e) {
-            // This should not happen in tests since we're mocking
-            throw new RuntimeException(e);
-        }
-
         return course;
     }
 
@@ -58,6 +41,12 @@ class AutoGrantAgentTest {
         Set<String> access = new HashSet<>(Arrays.asList(hasAccess));
         try {
             when(g.hasAccessTo(anyString())).thenAnswer(inv -> access.contains(inv.getArgument(0)));
+            // Mock grantAccess to update the access set
+            doAnswer(inv -> {
+                String solution = inv.getArgument(0);
+                access.add(solution);
+                return null;
+            }).when(g).grantAccess(anyString());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -72,6 +61,12 @@ class AutoGrantAgentTest {
         Set<String> access = new HashSet<>(Arrays.asList(hasAccess));
         try {
             when(g.hasAccessTo(anyString())).thenAnswer(inv -> access.contains(inv.getArgument(0)));
+            // Mock grantAccess to update the access set
+            doAnswer(inv -> {
+                String solution = inv.getArgument(0);
+                access.add(solution);
+                return null;
+            }).when(g).grantAccess(anyString());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

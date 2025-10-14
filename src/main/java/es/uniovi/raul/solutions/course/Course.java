@@ -89,28 +89,6 @@ public final class Course {
         return getSolutions().contains(solution);
     }
 
-    public void grantAccess(Group group, String solution)
-            throws GithubApiException, IOException, InterruptedException {
-
-        notNull(group, solution);
-
-        if (!solutionExists(solution))
-            throw new IllegalArgumentException("Solution '" + solution + "' is not a valid solution in this course");
-
-        githubApi.grantAccess(organizationName, solution, group.getSlug());
-    }
-
-    public void revokeAccess(Group group, String solution)
-            throws GithubApiException, IOException, InterruptedException {
-
-        notNull(group, solution);
-
-        if (!solutionExists(solution))
-            throw new IllegalArgumentException("Solution '" + solution + "' is not a valid solution in this course");
-
-        githubApi.revokeAccess(organizationName, solution, group.getSlug());
-    }
-
     //# ------------------------------------------------------------------
     //# Auxiliary methods
 

@@ -68,6 +68,28 @@ public final class Group {
         return ensureAccessibleSolutions().contains(solution);
     }
 
+    public void grantAccess(String solution)
+            throws GithubApiException, IOException, InterruptedException {
+
+        notNull(solution);
+
+        githubApi.grantAccess(organizationName, solution, teamSlug);
+
+        // Invalidate cache since access has changed
+        accessibleSolutions = null;
+    }
+
+    public void revokeAccess(String solution)
+            throws GithubApiException, IOException, InterruptedException {
+
+        notNull(solution);
+
+        githubApi.revokeAccess(organizationName, solution, teamSlug);
+
+        // Invalidate cache since access has changed
+        accessibleSolutions = null;
+    }
+
     private List<String> ensureAccessibleSolutions()
             throws GithubApiException, IOException, InterruptedException {
         if (accessibleSolutions == null) {

@@ -28,9 +28,9 @@ public final class ManualGrantAgent {
         var chosenSolution = chooseSolution(course, chosenGroup);
 
         if (chosenGroup.hasAccessTo(chosenSolution))
-            confirmAndApply("Revoke", course::revokeAccess, chosenGroup, chosenSolution);
+            confirmAndApply("Revoke", Group::revokeAccess, chosenGroup, chosenSolution);
         else
-            confirmAndApply("Grant", course::grantAccess, chosenGroup, chosenSolution);
+            confirmAndApply("Grant", Group::grantAccess, chosenGroup, chosenSolution);
     }
 
     private Group chooseGroup(Course course) throws IOException {
