@@ -15,6 +15,10 @@ import com.fasterxml.jackson.databind.*;
  */
 public final class GithubApiImpl implements GithubApi {
 
+    // HTTP Status Codes
+    private static final int HTTP_OK = 200;
+    private static final int HTTP_NO_CONTENT = 204;
+
     private final String token;
     private final HttpClient client;
     private final ObjectMapper mapper;
@@ -37,7 +41,7 @@ public final class GithubApiImpl implements GithubApi {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        if (response.statusCode() != 200)
+        if (response.statusCode() != HTTP_OK)
             throw new RejectedOperationException("Failed to get existing teams for organization '" + organization
                     + "'. Status: " + response.statusCode() + ". Response: " + response.body());
 
@@ -66,7 +70,7 @@ public final class GithubApiImpl implements GithubApi {
         HttpRequest request = createHttpRequestBuilder(url).build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        if (response.statusCode() != 200)
+        if (response.statusCode() != HTTP_OK)
             throw new RejectedOperationException("Failed to get repositories for organization '" + organization
                     + "'. Status: " + response.statusCode() + ". Response: " + response.body());
 
@@ -88,11 +92,12 @@ public final class GithubApiImpl implements GithubApi {
     @Override
     public List<String> fetchRepositoriesForTeam(String organization, String teamSlug)
             throws GithubApiException, IOException, InterruptedException {
+
         String url = String.format("https://api.github.com/orgs/%s/teams/%s/repos", organization, teamSlug);
         HttpRequest request = createHttpRequestBuilder(url).build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        if (response.statusCode() != 200)
+        if (response.statusCode() != HTTP_OK)
             throw new RejectedOperationException("Failed to get repositories for team '" + teamSlug
                     + "' in organization '" + organization + "'. Status: "
                     + response.statusCode() + ". Response: " + response.body());
@@ -117,14 +122,16 @@ public final class GithubApiImpl implements GithubApi {
     @Override
     public void grantAccess(String organization, String repository, String teamSlug)
             throws GithubApiException, IOException, InterruptedException {
+
         String url = String.format("https://api.github.com/orgs/%s/teams/%s/repos/%s/%s",
                 organization, teamSlug, organization, repository);
         HttpRequest request = createHttpRequestBuilder(url)
                 .header("Content-Type", "application/json")
                 .PUT(ofString("{\"permission\":\"pull\"}"))
                 .build();
+
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        if (response.statusCode() != 204)
+        if (response.statusCode() != HTTP_NO_CONTENT)
             throw new RejectedOperationException("Failed to add team to repository in organization '" + organization
                     + "'. Status: " + response.statusCode() + ". Response: " + response.body());
     }
@@ -132,13 +139,15 @@ public final class GithubApiImpl implements GithubApi {
     @Override
     public void revokeAccess(String organization, String repository, String teamSlug)
             throws GithubApiException, IOException, InterruptedException {
+
         String url = String.format("https://api.github.com/orgs/%s/teams/%s/repos/%s/%s",
                 organization, teamSlug, organization, repository);
         HttpRequest request = createHttpRequestBuilder(url)
                 .DELETE()
                 .build();
+
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        if (response.statusCode() != 204)
+        if (response.statusCode() != HTTP_NO_CONTENT)
             throw new RejectedOperationException("Failed to remove team from repository in organization '"
                     + organization + "'. Status: " + response.statusCode() + ". Response: " + response.body());
     }
