@@ -1,18 +1,15 @@
 package es.uniovi.raul.solutions.main;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-import java.io.IOException;
 import java.time.*;
 import java.util.*;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import es.uniovi.raul.solutions.course.*;
-import es.uniovi.raul.solutions.github.GithubApi.RejectedOperationException;
-import es.uniovi.raul.solutions.github.GithubApi.UnexpectedFormatException;
 
 class AutoGrantAgentTest {
 
@@ -50,7 +47,7 @@ class AutoGrantAgentTest {
     }
 
     private static Group group(String name, String day, int startHour, int startMinute, int minutes,
-            String... hasAccess) throws Exception {
+            String... hasAccess) {
         Group g = mock(Group.class);
         when(g.name()).thenReturn(name);
         Schedule s = new Schedule(day, LocalTime.of(startHour, startMinute), minutes);
@@ -62,7 +59,7 @@ class AutoGrantAgentTest {
         return g;
     }
 
-    private static Group groupNoSchedule(String name, String... hasAccess) throws Exception {
+    private static Group groupNoSchedule(String name, String... hasAccess) {
         Group g = mock(Group.class);
         when(g.name()).thenReturn(name);
         when(g.schedule()).thenReturn(Optional.empty());
@@ -74,8 +71,7 @@ class AutoGrantAgentTest {
 
     @Test
     @DisplayName("tryAutomaticSelection happy path: one group scheduled, picks first not-yet-accessed solution, confirms true")
-    void tryAutomaticSelection_happy_path()
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException, Exception {
+    void tryAutomaticSelection_happy_path() throws Exception {
         Clock clock = fixedClock(2025, 8, 18, 10, 0); // Monday 10:00
         Prompter prompter = mock(Prompter.class);
         when(prompter.confirm(anyString(), any(Object[].class))).thenReturn(true);
@@ -121,7 +117,7 @@ class AutoGrantAgentTest {
 
     @Test
     @DisplayName("guessGroup chooses unique scheduled group; guessSolution chooses lexicographically smallest not-yet-accessed")
-    void guessers() throws Exception {
+    void guessers() {
         Clock clock = fixedClock(2025, 8, 18, 10, 0); // Monday
         AutoGrantAgent agent = new AutoGrantAgent(clock, (m, a) -> true);
 

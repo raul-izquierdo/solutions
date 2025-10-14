@@ -26,7 +26,7 @@ public final class GithubApiImpl implements GithubApi {
 
     @Override
     public List<Team> fetchTeams(String organization)
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+            throws GithubApiException, IOException, InterruptedException {
 
         List<Team> teams = new ArrayList<>();
         try (HttpClient client = HttpClient.newHttpClient()) {
@@ -62,7 +62,7 @@ public final class GithubApiImpl implements GithubApi {
 
     @Override
     public List<String> fetchAllRepositories(String organization)
-            throws IOException, InterruptedException, RejectedOperationException, UnexpectedFormatException {
+            throws GithubApiException, IOException, InterruptedException {
 
         List<String> repositories = new ArrayList<>();
 
@@ -97,7 +97,7 @@ public final class GithubApiImpl implements GithubApi {
 
     @Override
     public List<String> fetchRepositoriesForTeam(String organization, String teamSlug)
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+            throws GithubApiException, IOException, InterruptedException {
 
         try (HttpClient client = HttpClient.newHttpClient()) {
             String url = String.format("https://api.github.com/orgs/%s/teams/%s/repos", organization, teamSlug);
@@ -133,7 +133,7 @@ public final class GithubApiImpl implements GithubApi {
 
     @Override
     public void grantAccess(String organization, String repository, String teamSlug)
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+            throws GithubApiException, IOException, InterruptedException {
 
         try (HttpClient client = HttpClient.newHttpClient()) {
 
@@ -155,7 +155,7 @@ public final class GithubApiImpl implements GithubApi {
 
     @Override
     public void revokeAccess(String organization, String repository, String teamSlug)
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+            throws GithubApiException, IOException, InterruptedException {
 
         try (HttpClient client = HttpClient.newHttpClient()) {
             String url = String.format("https://api.github.com/orgs/%s/teams/%s/repos/%s/%s",

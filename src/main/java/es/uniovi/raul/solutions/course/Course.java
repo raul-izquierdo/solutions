@@ -29,13 +29,13 @@ public final class Course {
     private List<String> solutions;
 
     public Course(String organizationName, GithubApi githubApi)
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+            throws GithubApiException, IOException, InterruptedException {
 
         this(organizationName, githubApi, Collections.emptyMap());
     }
 
     public Course(String organizationName, GithubApi githubApi, Map<String, Schedule> schedule)
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+            throws GithubApiException, IOException, InterruptedException {
 
         this(organizationName, githubApi, schedule, new RegExpIdentifier(".*solution$"));
     }
@@ -44,7 +44,7 @@ public final class Course {
             GithubApi githubApi,
             Map<String, Schedule> schedule,
             SolutionIdentifier solutionIdentifier)
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+            throws GithubApiException, IOException, InterruptedException {
 
         notNull(githubApi, organizationName, schedule);
 
@@ -89,7 +89,7 @@ public final class Course {
     }
 
     public void grantAccess(Group group, String solution)
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+            throws GithubApiException, IOException, InterruptedException {
 
         notNull(group, solution);
 
@@ -100,7 +100,7 @@ public final class Course {
     }
 
     public void revokeAccess(Group group, String solution)
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+            throws GithubApiException, IOException, InterruptedException {
 
         notNull(group, solution);
 
@@ -114,7 +114,7 @@ public final class Course {
     //# Auxiliary methods
 
     private List<Group> fetchGroups()
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+            throws GithubApiException, IOException, InterruptedException {
 
         List<Team> filteredTeams = githubApi
                 .fetchTeams(organizationName).stream()
@@ -133,7 +133,7 @@ public final class Course {
     }
 
     private List<String> fetchSolutions()
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+            throws GithubApiException, IOException, InterruptedException {
 
         return githubApi.fetchAllRepositories(organizationName).stream()
                 .filter(solutionIdentifier::isSolutionRepository)
@@ -141,7 +141,7 @@ public final class Course {
     }
 
     private List<String> fetchGroupSolutions(String teamSlug)
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+            throws GithubApiException, IOException, InterruptedException {
 
         return githubApi
                 .fetchRepositoriesForTeam(organizationName, teamSlug)

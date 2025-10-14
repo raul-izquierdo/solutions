@@ -7,20 +7,17 @@ import java.io.IOException;
 import java.time.LocalTime;
 import java.util.*;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
-import es.uniovi.raul.solutions.github.GithubApi;
-import es.uniovi.raul.solutions.github.GithubApi.RejectedOperationException;
-import es.uniovi.raul.solutions.github.GithubApi.UnexpectedFormatException;
-import es.uniovi.raul.solutions.github.Team;
+import es.uniovi.raul.solutions.github.*;
+import es.uniovi.raul.solutions.github.GithubApi.*;
 
 class CourseTest {
 
     @Test
     @DisplayName("Course loads groups filtered by 'group ' prefix and loads solutions by naming rule")
     void courseLoadsGroupsAndSolutions()
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+            throws GithubApiException, IOException, InterruptedException {
         GithubApi api = mock(GithubApi.class);
 
         // Teams: only those that start with "group " become Course groups
@@ -68,11 +65,11 @@ class CourseTest {
     @Test
     @DisplayName("Course propagates API exceptions from GithubConnection")
     void coursePropagatesApiErrors()
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+            throws GithubApiException, IOException, InterruptedException {
         GithubApi api = mock(GithubApi.class);
         when(api.fetchTeams("org")).thenThrow(new RejectedOperationException("rate limited"));
 
-        assertThrows(RejectedOperationException.class, () -> new Course("org", api));
+        assertThrows(GithubApiException.class, () -> new Course("org", api));
     }
 
     @Test
@@ -191,11 +188,11 @@ class CourseTest {
         // Test grantAccess propagates exceptions
         doThrow(new RejectedOperationException("rate limited")).when(api)
                 .grantAccess("org", "solution", "g1-slug");
-        assertThrows(RejectedOperationException.class, () -> course.grantAccess(group, "solution"));
+        assertThrows(GithubApiException.class, () -> course.grantAccess(group, "solution"));
 
         doThrow(new UnexpectedFormatException("bad format")).when(api)
                 .revokeAccess("org", "solution", "g1-slug");
-        assertThrows(UnexpectedFormatException.class, () -> course.revokeAccess(group, "solution"));
+        assertThrows(GithubApiException.class, () -> course.revokeAccess(group, "solution"));
     }
 
 }

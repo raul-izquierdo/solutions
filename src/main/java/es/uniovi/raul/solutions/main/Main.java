@@ -43,8 +43,8 @@ public class Main {
         System.exit(exitCode);
     }
 
-    static int run(Arguments arguments) throws IOException, InvalidScheduleFormat, UnexpectedFormatException,
-            RejectedOperationException, InterruptedException {
+    static int run(Arguments arguments) throws IOException, InvalidScheduleFormat, GithubApiException,
+            InterruptedException {
 
         var schedule = loadSchedule(arguments.scheduleFile);
 

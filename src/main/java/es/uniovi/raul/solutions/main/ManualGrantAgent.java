@@ -6,8 +6,7 @@ import java.io.IOException;
 
 import es.uniovi.raul.solutions.course.Course;
 import es.uniovi.raul.solutions.course.Group;
-import es.uniovi.raul.solutions.github.GithubApi.RejectedOperationException;
-import es.uniovi.raul.solutions.github.GithubApi.UnexpectedFormatException;
+import es.uniovi.raul.solutions.github.GithubApi.GithubApiException;
 
 /**
  * Encapsulates interactive choosing logic for group and solution.
@@ -21,7 +20,7 @@ final class ManualGrantAgent {
     }
 
     void doManualSelection(Course course)
-            throws IOException, UnexpectedFormatException, RejectedOperationException, InterruptedException {
+            throws IOException, GithubApiException, InterruptedException {
 
         var chosenGroup = chooseGroup(course);
 
@@ -52,7 +51,7 @@ final class ManualGrantAgent {
     }
 
     private void confirmAndApply(String verb, AccessAction action, Group group, String solution)
-            throws UnexpectedFormatException, RejectedOperationException, InterruptedException, IOException {
+            throws GithubApiException, InterruptedException, IOException {
 
         if (prompter.confirm(verb + " access?")) {
             action.apply(group, solution);
@@ -65,5 +64,5 @@ final class ManualGrantAgent {
 @FunctionalInterface
 interface AccessAction {
     void apply(Group group, String solution)
-            throws UnexpectedFormatException, RejectedOperationException, InterruptedException, IOException;
+            throws GithubApiException, InterruptedException, IOException;
 }

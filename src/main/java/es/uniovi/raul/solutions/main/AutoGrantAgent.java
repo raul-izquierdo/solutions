@@ -1,16 +1,11 @@
 package es.uniovi.raul.solutions.main;
 
 import java.io.IOException;
-import java.time.Clock;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.Optional;
+import java.time.*;
+import java.util.*;
 
-import es.uniovi.raul.solutions.course.Course;
-import es.uniovi.raul.solutions.course.Group;
-import es.uniovi.raul.solutions.github.GithubApi.RejectedOperationException;
-import es.uniovi.raul.solutions.github.GithubApi.UnexpectedFormatException;
+import es.uniovi.raul.solutions.course.*;
+import es.uniovi.raul.solutions.github.GithubApi.GithubApiException;
 
 /**
  * Encapsulates time-based suggestion logic.
@@ -31,7 +26,7 @@ public final class AutoGrantAgent {
      * @return true if access was granted, false otherwise
      */
     public boolean tryAutomaticSelection(Course course)
-            throws UnexpectedFormatException, RejectedOperationException, IOException, InterruptedException {
+            throws GithubApiException, IOException, InterruptedException {
 
         var guessedGroupOpt = guessGroup(course.getGroups());
         if (guessedGroupOpt.isEmpty())
