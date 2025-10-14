@@ -1,5 +1,5 @@
 
-package es.uniovi.raul.solutions.cli.options;
+package es.uniovi.raul.solutions.cli.selector;
 
 import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp.Capability;

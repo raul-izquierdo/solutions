@@ -1,6 +1,6 @@
-package es.uniovi.raul.solutions.cli.options;
+package es.uniovi.raul.solutions.cli.selector;
 
-import static es.uniovi.raul.solutions.cli.options.Colours.*;
+import static es.uniovi.raul.solutions.cli.selector.Colours.*;
 
 import java.io.IOException;
 import java.util.*;

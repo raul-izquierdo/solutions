@@ -1,6 +1,6 @@
 package es.uniovi.raul.solutions.main;
 
-import static es.uniovi.raul.solutions.cli.options.OptionsSelector.showOptions;
+import static es.uniovi.raul.solutions.cli.selector.OptionsSelector.*;
 
 import java.io.IOException;
 import java.util.ArrayList;

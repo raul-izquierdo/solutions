@@ -1,4 +1,4 @@
-package es.uniovi.raul.solutions.cli.options;
+package es.uniovi.raul.solutions.cli.selector;
 
 import java.text.Normalizer;
 import java.util.*;
