@@ -35,7 +35,7 @@ class LazyLoadingTest {
         verify(mockApi, never()).fetchRepositoriesForTeam(any(), any());
 
         // First access triggers the API call
-        List<String> solutions = group.getAccesibleSolutions();
+        List<String> solutions = group.getAccessibleSolutions();
 
         // Verify API was called and results are correct
         verify(mockApi, times(1)).fetchRepositoriesForTeam("org", "team-slug");

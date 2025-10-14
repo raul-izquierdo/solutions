@@ -56,7 +56,7 @@ public final class Group {
         return schedule.map(groupSchedule -> groupSchedule.includes(day, time)).orElse(false);
     }
 
-    public List<String> getAccesibleSolutions()
+    public List<String> getAccessibleSolutions()
             throws GithubApiException, IOException, InterruptedException {
         return ensureAccessibleSolutions();
     }
@@ -95,7 +95,7 @@ public final class Group {
         if (accessibleSolutions == null) {
             accessibleSolutions = fetchGroupSolutions();
         }
-        return accessibleSolutions;
+        return Collections.unmodifiableList(accessibleSolutions);
     }
 
     private List<String> fetchGroupSolutions()

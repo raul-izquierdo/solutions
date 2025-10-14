@@ -44,7 +44,7 @@ class GroupTest {
         assertTrue(g.schedule().isPresent());
 
         // Only solution repos, and repo name is trimmed from org/
-        assertEquals(List.of("a-solution", "b-solution"), g.getAccesibleSolutions());
+        assertEquals(List.of("a-solution", "b-solution"), g.getAccessibleSolutions());
         assertTrue(g.hasAccessTo("a-solution"));
         assertFalse(g.hasAccessTo("lib"));
 
@@ -77,7 +77,7 @@ class GroupTest {
     @DisplayName("Group with no accessible solutions returns empty list and hasAccessTo=false")
     void noAccessibleSolutions() throws Exception {
         Group g = createTestGroup("G", "slug", List.of(), Optional.empty());
-        assertTrue(g.getAccesibleSolutions().isEmpty());
+        assertTrue(g.getAccessibleSolutions().isEmpty());
         assertFalse(g.hasAccessTo("a-solution"));
     }
 
@@ -105,14 +105,14 @@ class GroupTest {
         Group group = new Group("G1", "team-slug", Optional.empty(), "org", api, identifier);
 
         // Initial state - only solution1
-        assertEquals(List.of("solution1"), group.getAccesibleSolutions());
+        assertEquals(List.of("solution1"), group.getAccessibleSolutions());
 
         // Grant access to solution2
         group.grantAccess("solution2");
         verify(api).grantAccess("org", "solution2", "team-slug");
 
         // Cache should be invalidated and refetch on next call
-        assertEquals(List.of("solution1", "solution2"), group.getAccesibleSolutions());
+        assertEquals(List.of("solution1", "solution2"), group.getAccessibleSolutions());
         verify(api, times(2)).fetchRepositoriesForTeam("org", "team-slug");
     }
 
@@ -130,14 +130,14 @@ class GroupTest {
         Group group = new Group("G1", "team-slug", Optional.empty(), "org", api, identifier);
 
         // Initial state - both solutions
-        assertEquals(List.of("solution1", "solution2"), group.getAccesibleSolutions());
+        assertEquals(List.of("solution1", "solution2"), group.getAccessibleSolutions());
 
         // Revoke access to solution2
         group.revokeAccess("solution2");
         verify(api).revokeAccess("org", "solution2", "team-slug");
 
         // Cache should be invalidated and refetch on next call
-        assertEquals(List.of("solution1"), group.getAccesibleSolutions());
+        assertEquals(List.of("solution1"), group.getAccessibleSolutions());
         verify(api, times(2)).fetchRepositoriesForTeam("org", "team-slug");
     }
 

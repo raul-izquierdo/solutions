@@ -19,13 +19,13 @@ import es.uniovi.raul.solutions.github.GithubApi.*;
 
 public final class Course {
 
-    private String organizationName;
-    private GithubApi githubApi;
-    private Map<String, Schedule> schedule;
-    private SolutionIdentifier solutionIdentifier;
+    private final String organizationName;
+    private final GithubApi githubApi;
+    private final Map<String, Schedule> schedule;
+    private final SolutionIdentifier solutionIdentifier;
 
-    private List<Group> groups;
-    private List<String> solutions;
+    private final List<Group> groups;
+    private final List<String> solutions;
 
     public Course(String organizationName, GithubApi githubApi)
             throws GithubApiException, IOException, InterruptedException {
@@ -47,12 +47,12 @@ public final class Course {
 
         this.organizationName = organizationName;
         this.githubApi = githubApi;
-        this.schedule = schedule;
+        this.schedule = Map.copyOf(schedule);
 
         this.solutionIdentifier = solutionIdentifier;
 
-        this.groups = fetchGroups();
-        this.solutions = fetchSolutions();
+        this.groups = List.copyOf(fetchGroups());
+        this.solutions = List.copyOf(fetchSolutions());
 
     }
 
@@ -72,14 +72,14 @@ public final class Course {
      * Returns the groups in the course (teams that correspond to groups).
      */
     public List<Group> getGroups() {
-        return groups;
+        return groups; // unmodifiable snapshot
     }
 
     /**
      * Returns the names of all the repositories that correspond to solutions of assignments in the course.
      */
     public List<String> getSolutions() {
-        return solutions;
+        return solutions; // unmodifiable snapshot
     }
 
     public boolean solutionExists(String solution) {
