@@ -47,7 +47,7 @@ public final class ScheduleLoader {
             return 60 * 2; // 2 hours
 
         // The value can be "2" (hours), "2h" (hours) or "2m" (minutes)
-        var matcher = Pattern.compile("^(\\d+)(h|m)?$").matcher(value.get());
+        var matcher = Pattern.compile("^(\\d+)([hm])?$").matcher(value.get());
         if (!matcher.matches())
             throw newFormatException(csvRecord, column, "<integer> or <integer>h or <integer>m>");
 
