@@ -14,7 +14,7 @@ import es.uniovi.raul.solutions.github.GithubApi.GithubApiException;
  */
 public final class ManualGrantAgent {
 
-    private Prompter prompter;
+    private final Prompter prompter;
 
     public ManualGrantAgent(Prompter prompter) {
         this.prompter = prompter;
