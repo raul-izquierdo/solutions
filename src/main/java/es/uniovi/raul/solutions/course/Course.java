@@ -40,9 +40,7 @@ public final class Course {
         this(organizationName, githubApi, schedule, new RegExpIdentifier(".*solution$"));
     }
 
-    public Course(String organizationName,
-            GithubApi githubApi,
-            Map<String, Schedule> schedule,
+    public Course(String organizationName, GithubApi githubApi, Map<String, Schedule> schedule,
             SolutionIdentifier solutionIdentifier)
             throws GithubApiException, IOException, InterruptedException {
 
@@ -65,6 +63,10 @@ public final class Course {
 
     public String getOrganizationName() {
         return organizationName;
+    }
+
+    public SolutionIdentifier getSolutionIdentifier() {
+        return solutionIdentifier;
     }
 
     /**
@@ -124,9 +126,9 @@ public final class Course {
         List<Group> groupTeams = new ArrayList<>();
         for (var team : filteredTeams) {
             var group = toGroup(team.displayName());
-            var accessibleSolutions = fetchGroupSolutions(team.slug());
             groupTeams.add(
-                    new Group(group, team.slug(), accessibleSolutions, Optional.ofNullable(schedule.get(group))));
+                    new Group(group, team.slug(), Optional.ofNullable(schedule.get(group)),
+                            organizationName, githubApi, solutionIdentifier));
         }
 
         return groupTeams;
@@ -137,20 +139,6 @@ public final class Course {
 
         return githubApi.fetchAllRepositories(organizationName).stream()
                 .filter(solutionIdentifier::isSolutionRepository)
-                .toList();
-    }
-
-    private List<String> fetchGroupSolutions(String teamSlug)
-            throws GithubApiException, IOException, InterruptedException {
-
-        return githubApi
-                .fetchRepositoriesForTeam(organizationName, teamSlug)
-                .stream()
-                .filter(solutionIdentifier::isSolutionRepository)
-                // Returned repos have the format "<org>/<repo>". We only want the repo name.
-                .map(solution -> (solution.contains("/"))
-                        ? solution.substring(solution.lastIndexOf('/') + 1)
-                        : solution)
                 .toList();
     }
 }

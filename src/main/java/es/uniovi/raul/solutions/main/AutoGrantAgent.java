@@ -58,11 +58,14 @@ public final class AutoGrantAgent {
         return matching.size() == 1 ? Optional.of(matching.get(0)) : Optional.empty();
     }
 
-    public Optional<String> guessSolution(Group group, List<String> allSolutions) {
-        return allSolutions.stream()
-                .sorted()
-                .filter(s -> !group.hasAccessTo(s))
-                .findFirst();
+    public Optional<String> guessSolution(Group group, List<String> allSolutions)
+            throws GithubApiException, IOException, InterruptedException {
+        for (String solution : allSolutions.stream().sorted().toList()) {
+            if (!group.hasAccessTo(solution)) {
+                return Optional.of(solution);
+            }
+        }
+        return Optional.empty();
     }
 
     private String today() {

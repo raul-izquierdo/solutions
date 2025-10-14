@@ -3,6 +3,7 @@ package es.uniovi.raul.solutions.main;
 import static es.uniovi.raul.solutions.cli.options.OptionsSelector.showOptions;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import es.uniovi.raul.solutions.course.Course;
 import es.uniovi.raul.solutions.course.Group;
@@ -39,14 +40,19 @@ final class ManualGrantAgent {
         return course.getGroups().get(selectedGroupIndex);
     }
 
-    private String chooseSolution(Course course, Group chosenGroup) throws IOException {
+    private String chooseSolution(Course course, Group chosenGroup)
+            throws IOException, GithubApiException, InterruptedException {
 
         System.out.println("Choose the solution:");
-        int selectedSolutionIndex = showOptions(course.getSolutions()
-                .stream()
-                .map(solution -> solution + (chosenGroup.hasAccessTo(solution) ? " [accessible]" : " [hidden]"))
-                .toList());
 
+        // Pre-load accessible solutions to avoid lambda exception issues
+        var solutionsWithAccess = new ArrayList<String>();
+        for (var solution : course.getSolutions()) {
+            var accessStatus = chosenGroup.hasAccessTo(solution) ? " [accessible]" : " [hidden]";
+            solutionsWithAccess.add(solution + accessStatus);
+        }
+
+        int selectedSolutionIndex = showOptions(solutionsWithAccess);
         return course.getSolutions().get(selectedSolutionIndex);
     }
 

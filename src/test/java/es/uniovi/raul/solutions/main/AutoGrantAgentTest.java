@@ -55,7 +55,11 @@ class AutoGrantAgentTest {
         when(g.isScheduledFor(anyString(), any()))
                 .thenAnswer(inv -> s.includes(inv.getArgument(0), inv.getArgument(1)));
         Set<String> access = new HashSet<>(Arrays.asList(hasAccess));
-        when(g.hasAccessTo(anyString())).thenAnswer(inv -> access.contains(inv.getArgument(0)));
+        try {
+            when(g.hasAccessTo(anyString())).thenAnswer(inv -> access.contains(inv.getArgument(0)));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return g;
     }
 
@@ -65,7 +69,11 @@ class AutoGrantAgentTest {
         when(g.schedule()).thenReturn(Optional.empty());
         when(g.isScheduledFor(anyString(), any())).thenReturn(false);
         Set<String> access = new HashSet<>(Arrays.asList(hasAccess));
-        when(g.hasAccessTo(anyString())).thenAnswer(inv -> access.contains(inv.getArgument(0)));
+        try {
+            when(g.hasAccessTo(anyString())).thenAnswer(inv -> access.contains(inv.getArgument(0)));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return g;
     }
 
@@ -117,7 +125,7 @@ class AutoGrantAgentTest {
 
     @Test
     @DisplayName("guessGroup chooses unique scheduled group; guessSolution chooses lexicographically smallest not-yet-accessed")
-    void guessers() {
+    void guessers() throws Exception {
         Clock clock = fixedClock(2025, 8, 18, 10, 0); // Monday
         AutoGrantAgent agent = new AutoGrantAgent(clock, (m, a) -> true);
 

@@ -2,8 +2,13 @@ package es.uniovi.raul.solutions.course;
 
 import static es.uniovi.raul.solutions.debug.Debug.*;
 
+import java.io.IOException;
 import java.time.LocalTime;
 import java.util.*;
+
+import es.uniovi.raul.solutions.course.naming.SolutionIdentifier;
+import es.uniovi.raul.solutions.github.GithubApi;
+import es.uniovi.raul.solutions.github.GithubApi.GithubApiException;
 
 /**
  * Represents a group of the course and its associated github team.
@@ -12,17 +17,25 @@ public final class Group {
 
     private final String name;
     private final String teamSlug;
-    private List<String> accesibleSolutions;
     private final Optional<Schedule> schedule;
 
-    Group(String name, String teamSlug, List<String> accessibleSolutions, Optional<Schedule> schedule) {
-        notNull(name, teamSlug, schedule, accessibleSolutions);
+    // Lazy loading fields
+    private final String organizationName;
+    private final GithubApi githubApi;
+    private final SolutionIdentifier solutionIdentifier;
+    private List<String> accessibleSolutions; // null = not loaded yet
+
+    Group(String name, String teamSlug, Optional<Schedule> schedule,
+            String organizationName, GithubApi githubApi, SolutionIdentifier solutionIdentifier) {
+        notNull(name, teamSlug, schedule, organizationName, githubApi, solutionIdentifier);
 
         this.name = name;
         this.teamSlug = teamSlug;
         this.schedule = schedule;
-
-        this.accesibleSolutions = new ArrayList<>(accessibleSolutions);
+        this.organizationName = organizationName;
+        this.githubApi = githubApi;
+        this.solutionIdentifier = solutionIdentifier;
+        this.accessibleSolutions = null; // Lazy loading
     }
 
     public String name() {
@@ -43,14 +56,37 @@ public final class Group {
         return schedule.map(groupSchedule -> groupSchedule.includes(day, time)).orElse(false);
     }
 
-    public List<String> getAccesibleSolutions() {
-        return accesibleSolutions;
+    public List<String> getAccesibleSolutions()
+            throws GithubApiException, IOException, InterruptedException {
+        return ensureAccessibleSolutions();
     }
 
-    public boolean hasAccessTo(String solution) {
+    public boolean hasAccessTo(String solution)
+            throws GithubApiException, IOException, InterruptedException {
         notNull(solution);
 
-        return accesibleSolutions.contains(solution);
+        return ensureAccessibleSolutions().contains(solution);
+    }
+
+    private List<String> ensureAccessibleSolutions()
+            throws GithubApiException, IOException, InterruptedException {
+        if (accessibleSolutions == null) {
+            accessibleSolutions = fetchGroupSolutions();
+        }
+        return accessibleSolutions;
+    }
+
+    private List<String> fetchGroupSolutions()
+            throws GithubApiException, IOException, InterruptedException {
+        return githubApi
+                .fetchRepositoriesForTeam(organizationName, teamSlug)
+                .stream()
+                .filter(solutionIdentifier::isSolutionRepository)
+                // Returned repos have the format "<org>/<repo>". We only want the repo name.
+                .map(solution -> (solution.contains("/"))
+                        ? solution.substring(solution.lastIndexOf('/') + 1)
+                        : solution)
+                .toList();
     }
 
 }
