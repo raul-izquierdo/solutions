@@ -1,4 +1,4 @@
-package es.uniovi.raul.solutions.main;
+package es.uniovi.raul.solutions.main.agents;
 
 import java.io.IOException;
 import java.time.*;
@@ -14,7 +14,7 @@ public final class AutoGrantAgent {
     private final Clock clock;
     private final Prompter prompter;
 
-    AutoGrantAgent(Clock clock, Prompter prompter) {
+    public AutoGrantAgent(Clock clock, Prompter prompter) {
         this.clock = clock;
         this.prompter = prompter;
     }

@@ -1,4 +1,4 @@
-package es.uniovi.raul.solutions.main;
+package es.uniovi.raul.solutions.main.agents;
 
 import static es.uniovi.raul.solutions.cli.selector.OptionsSelector.*;
 
@@ -12,15 +12,15 @@ import es.uniovi.raul.solutions.github.GithubApi.GithubApiException;
 /**
  * Encapsulates interactive choosing logic for group and solution.
  */
-final class ManualGrantAgent {
+public final class ManualGrantAgent {
 
     private Prompter prompter;
 
-    ManualGrantAgent(Prompter prompter) {
+    public ManualGrantAgent(Prompter prompter) {
         this.prompter = prompter;
     }
 
-    void doManualSelection(Course course)
+    public void doManualSelection(Course course)
             throws IOException, GithubApiException, InterruptedException {
 
         var chosenGroup = chooseGroup(course);

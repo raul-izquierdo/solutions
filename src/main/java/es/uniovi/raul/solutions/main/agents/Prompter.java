@@ -1,4 +1,4 @@
-package es.uniovi.raul.solutions.main;
+package es.uniovi.raul.solutions.main.agents;
 
 /**
  * Abstraction for user confirmations. Allows swapping console prompts with

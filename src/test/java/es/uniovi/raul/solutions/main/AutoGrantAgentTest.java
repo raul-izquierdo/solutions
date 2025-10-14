@@ -10,6 +10,7 @@ import java.util.*;
 import org.junit.jupiter.api.*;
 
 import es.uniovi.raul.solutions.course.*;
+import es.uniovi.raul.solutions.main.agents.*;
 
 class AutoGrantAgentTest {
 

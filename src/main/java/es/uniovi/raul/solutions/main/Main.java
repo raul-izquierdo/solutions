@@ -10,7 +10,8 @@ import es.uniovi.raul.solutions.cli.*;
 import es.uniovi.raul.solutions.cli.Console;
 import es.uniovi.raul.solutions.course.*;
 import es.uniovi.raul.solutions.course.naming.RegExpIdentifier;
-import es.uniovi.raul.solutions.github.GithubApi.*;
+import es.uniovi.raul.solutions.github.GithubApi.GithubApiException;
+import es.uniovi.raul.solutions.main.agents.*;
 import es.uniovi.raul.solutions.github.GithubApiImpl;
 import es.uniovi.raul.solutions.schedule.ScheduleLoader.InvalidScheduleFormat;
 
