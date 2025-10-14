@@ -56,7 +56,7 @@ When you select a solution manually, its access is toggled (granted or revoked) 
 The JAR can be downloaded from the [releases page](https://github.com/raul-izquierdo/solutions/releases).
 
 ```bash
-java -jar solutions.jar [-s schedule.csv] [-o <organization>] [-t <token>]
+java -jar solutions.jar [-s schedule.csv] [-o <organization>] [-t <token>] [--dry-run]
 ```
 
 | Option              | Description                                             |
@@ -65,6 +65,7 @@ java -jar solutions.jar [-s schedule.csv] [-o <organization>] [-t <token>]
 | `-o <organization>` | The organization where the solution repositories are located.                               |
 | `-t <token>`        | GitHub API access token. For more details, see [Obtaining the GitHub token](https://github.com/raul-izquierdo/classroom-tools#obtaining-the-github-token). |
 | `-r <regex>`        | Regular expression to detect solution repository names. Default = ".*solution$" (solutions are repositories whose names end with `solution`)                                    |
+| `--dry-run`         | Preview mode: shows what changes would be made without actually modifying repository permissions.                                    |
 
 If you don't provide `-o` or `-t`, the tool will look for `GITHUB_ORG` and `GITHUB_TOKEN` in a `.env` file in your working directory:
 ```dotenv

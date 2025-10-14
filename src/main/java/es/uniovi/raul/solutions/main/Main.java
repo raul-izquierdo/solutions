@@ -10,6 +10,8 @@ import es.uniovi.raul.solutions.cli.*;
 import es.uniovi.raul.solutions.cli.Console;
 import es.uniovi.raul.solutions.course.*;
 import es.uniovi.raul.solutions.course.naming.RegExpIdentifier;
+import es.uniovi.raul.solutions.github.DryRunGithubApi;
+import es.uniovi.raul.solutions.github.GithubApi;
 import es.uniovi.raul.solutions.github.GithubApi.GithubApiException;
 import es.uniovi.raul.solutions.main.agents.*;
 import es.uniovi.raul.solutions.github.GithubApiImpl;
@@ -50,7 +52,12 @@ public class Main {
         var schedule = loadSchedule(arguments.scheduleFile);
 
         System.out.print("Connecting with Github... ");
-        var connection = new GithubApiImpl(arguments.token);
+        GithubApi connection = new GithubApiImpl(arguments.token);
+        if (arguments.dryRun) {
+            connection = new DryRunGithubApi(connection);
+            System.out.println("=== DRY RUN MODE - No changes will be made ===\n");
+        }
+
         var course = new Course(arguments.organization, connection, schedule,
                 new RegExpIdentifier(arguments.solutionRegex));
         System.out.println("done.\n");

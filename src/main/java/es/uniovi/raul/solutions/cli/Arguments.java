@@ -18,6 +18,9 @@ public class Arguments {
 
     @Option(names = "-r", defaultValue = ".*solution$", description = "A regular expression to identify solution repositories")
     public String solutionRegex;
+
+    @Option(names = "--dry-run", description = "Preview what would happen without making any changes")
+    public boolean dryRun;
 }
 
 class Messages {
