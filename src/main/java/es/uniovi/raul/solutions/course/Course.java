@@ -12,10 +12,9 @@ import es.uniovi.raul.solutions.github.GithubApi.*;
 
 /**
  * A Course is a layer of abstraction over a GitHub organization. Instead of teams and repositories,
- * a course shows groups and solution repositories.
+* a course shows groups and solution repositories. That is, filters teams that correspond to groups and repositories that correspond to solutions.
  *
- * A Course downloads all the information on creation. If updated information is required, a new
- * instance of the Course must be created.
+ * A Course downloads all the information on creation. If updated information is required, a new instance of the Course must be created.
  */
 
 public final class Course {

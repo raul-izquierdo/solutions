@@ -5,6 +5,11 @@ import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp.Capability;
 import static org.jline.utils.InfoCmp.Capability.*;
 
+/**
+ * Utility class for cursor movements and terminal line manipulations.
+ *
+ * Provides methods to move the cursor, clear lines, and hide/show the cursor in a terminal.
+ */
 public class Cursor {
 
     // Clears the rest of the line from the cursor position

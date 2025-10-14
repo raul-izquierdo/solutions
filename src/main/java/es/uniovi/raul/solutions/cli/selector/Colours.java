@@ -1,5 +1,8 @@
 package es.uniovi.raul.solutions.cli.selector;
 
+/**
+ * Utility class for terminal text colors.
+ */
 public class Colours {
 
     static final String COLOR_HIGHLIGHT = "\033[1;32m";

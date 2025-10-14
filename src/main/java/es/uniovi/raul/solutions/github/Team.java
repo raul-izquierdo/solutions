@@ -1,7 +1,7 @@
 package es.uniovi.raul.solutions.github;
 
 /**
- * Represents a team in the system.
+ * Represents a team in the organization.
  * Each team has a display name, a slug (unique identifier)
  *
  * @param displayName the display name of the team

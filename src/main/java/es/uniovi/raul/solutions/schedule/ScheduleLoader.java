@@ -14,6 +14,9 @@ import org.apache.commons.csv.*;
 
 import es.uniovi.raul.solutions.course.Schedule;
 
+/**
+ * Utility class to load schedules from a CSV file.
+ */
 public final class ScheduleLoader {
 
     public static Map<String, Schedule> load(String scheduleFile) throws IOException, InvalidScheduleFormat {
@@ -93,6 +96,9 @@ public final class ScheduleLoader {
         }
     }
 
+    /**
+     * Exception thrown when the schedule file has an invalid format.
+     */
     public static class InvalidScheduleFormat extends Exception {
         public InvalidScheduleFormat(String message) {
             super(message);

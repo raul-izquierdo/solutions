@@ -5,6 +5,13 @@ import static es.uniovi.raul.solutions.debug.Debug.*;
 import java.time.LocalTime;
 import java.util.stream.Stream;
 
+/**
+ * Represents a schedule for a group, including the day of the week, start time, and duration in minutes.
+ *
+ * @param dayOfWeek the day of the week for the schedule
+ * @param startTime the start time of the schedule
+ * @param minutes the duration of the schedule in minutes
+ */
 public record Schedule(String dayOfWeek, LocalTime startTime, int minutes) {
 
     public Schedule {

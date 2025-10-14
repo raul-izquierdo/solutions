@@ -8,8 +8,11 @@ import es.uniovi.raul.solutions.course.*;
 import es.uniovi.raul.solutions.github.GithubApi.GithubApiException;
 
 /**
- * Encapsulates time-based suggestion logic.
+ * Automatically tries to guess:
+ * - The group to grant access to, based on its schedule and the current time.
+ * - The next solution that the group does not have access to.
  */
+
 public final class AutoGrantAgent {
     private final Clock clock;
     private final Prompter prompter;

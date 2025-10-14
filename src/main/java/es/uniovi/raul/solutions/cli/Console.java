@@ -4,6 +4,9 @@ import static java.lang.String.*;
 
 import java.util.Scanner;
 
+/**
+ * Utility class for console input and output operations.
+  */
 public final class Console {
 
     public static void printError(String message) {
