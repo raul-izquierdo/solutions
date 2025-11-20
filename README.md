@@ -112,10 +112,17 @@ To help the tool recognize which _teams_ are _groups_ and which _repositories_ a
 
 ### Repository Names for Solutions
 
-1. By default, a repository is considered a _solution_ if its name **ends** with `solution` (because the default regex is `.*solution$`).
-    This can be changed using the `-r` option to provide a different regular expression. Examples:
-    - To match repositories that contains `solution` anywhere in the name: `.*solution.*`
-    - To match repositories that start with `solution`: `^solution.*`
+1. By default, a repository is considered a _solution_ if its name **ends** with the word "_solution_" (because the default regex is `.*solution$`). This can be changed using the `-r` option to provide a different regular expression.
+
+    For example:
+    - To match repositories that contains the word "_solution_" anywhere in the name:
+        ```sh
+        java -jar solutions.jar -r ".*solution.*"
+        ```
+    - To match repositories that start with the word "_solution_":
+        ```sh
+        java -jar solutions.jar -r "^solution.*"
+        ```
 2. For **automatic** solution selection, name your solution repositories so that sorting them **alphabetically** matches the order you want to _reveal_ them. A simple way to achieve this is to use a prefix that includes the class number: `01-factorial-solution`, `class_01...`, etc.
 
 In summary:
