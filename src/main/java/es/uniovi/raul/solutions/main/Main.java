@@ -65,11 +65,11 @@ public class Main {
         // If there are no groups or solutions, there's nothing to do. Print an informative message and exit.
         if (course.getGroups().isEmpty()) {
             printWarning("No groups found in the organization. Exiting.");
-            return -1;
+            return 2;
         }
         if (course.getSolutions().isEmpty()) {
             printWarning("No solutions found in the organization. Exiting.");
-            return -1;
+            return 2;
         }
 
         Prompter prompter = Console::confirmation;
