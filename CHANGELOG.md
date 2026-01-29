@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.4.1]
+
+### Fixed
+
+- Fixed an issue where the program would exit with a non-zero status code when no groups or solutions were found, which could be misinterpreted as an error in automated environments.
+- Solutions are now displayed in sorted order in the manual selection prompt for better usability.
+
 ## [1.4.0]
 
 ### Added
