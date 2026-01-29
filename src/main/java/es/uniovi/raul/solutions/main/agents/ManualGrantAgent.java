@@ -52,7 +52,7 @@ public final class ManualGrantAgent {
             solutionsWithAccess.add(solution + accessStatus);
         }
 
-        int selectedSolutionIndex = showOptions(solutionsWithAccess);
+        int selectedSolutionIndex = showOptions(solutionsWithAccess.stream().sorted().toList());
         return course.getSolutions().get(selectedSolutionIndex);
     }
 
