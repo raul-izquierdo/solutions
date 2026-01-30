@@ -6,7 +6,7 @@
 
     <groupId>es.uniovi.raul</groupId>
     <artifactId>${project.name}</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2</version>
 
     <url>https://github.com/raul-izquierdo/${project.name}</url>
 
