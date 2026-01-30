@@ -1,6 +1,7 @@
 package es.uniovi.raul.solutions.main.agents;
 
 import static es.uniovi.raul.solutions.cli.selector.OptionsSelector.*;
+import static java.lang.String.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,9 +29,9 @@ public final class ManualGrantAgent {
         var chosenSolution = chooseSolution(course, chosenGroup);
 
         if (chosenGroup.hasAccessTo(chosenSolution))
-            confirmAndApply("Revoke", Group::revokeAccess, chosenGroup, chosenSolution);
+            confirmAndApply("revoke", Group::revokeAccess, chosenGroup, chosenSolution);
         else
-            confirmAndApply("Grant", Group::grantAccess, chosenGroup, chosenSolution);
+            confirmAndApply("grant", Group::grantAccess, chosenGroup, chosenSolution);
     }
 
     private Group chooseGroup(Course course) throws IOException {
@@ -45,21 +46,24 @@ public final class ManualGrantAgent {
 
         System.out.println("Choose the solution:");
 
-        // Pre-load accessible solutions to avoid lambda exception issues
-        var solutionsWithAccess = new ArrayList<String>();
-        for (var solution : course.getSolutions()) {
-            var accessStatus = chosenGroup.hasAccessTo(solution) ? " [accessible]" : " [hidden]";
-            solutionsWithAccess.add(solution + accessStatus);
-        }
+        // One thing is the solution names ("solution1"), another is what the user sees ("solution1 [accessible]")
+        var sortedSolutions = course.getSolutions().stream().sorted().toList();
+        var userOptions = new ArrayList<String>();
 
-        int selectedSolutionIndex = showOptions(solutionsWithAccess.stream().sorted().toList());
-        return course.getSolutions().get(selectedSolutionIndex);
+        // Use for loop to avoid lambda exception issues
+        for (var solution : sortedSolutions)
+            userOptions.add(solution + (chosenGroup.hasAccessTo(solution) ? " [accessible]" : " [hidden]"));
+
+        int selectedSolutionIndex = showOptions(userOptions);
+        return sortedSolutions.get(selectedSolutionIndex);
     }
 
     private void confirmAndApply(String verb, AccessAction action, Group group, String solution)
             throws GithubApiException, InterruptedException, IOException {
 
-        if (prompter.confirm(verb + " access?")) {
+        var message = format("%nDo you want to %s group '%s' access to '%s'?", verb.toUpperCase(), group.name(),
+                solution);
+        if (prompter.confirm(message)) {
             action.apply(group, solution);
             System.out.println("Access " + verb.toLowerCase() + "ed."); // Very hacky and cutre
         } else
