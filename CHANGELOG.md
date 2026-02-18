@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.4.3]
+
+### Fixed
+
+- Only the first 100 repositories were being considered when detecting solutions, which could lead to missing solutions if there are more than 100 repositories in the organization. This has been fixed to consider all repositories.
+
 ## [1.4.2]
 
 ### Fixed
