@@ -66,25 +66,30 @@ public final class GithubApiImpl implements GithubApi {
             throws GithubApiException, IOException, InterruptedException {
 
         List<String> repositories = new ArrayList<>();
-        String url = String.format("https://api.github.com/orgs/%s/repos", organization);
-        HttpRequest request = createHttpRequestBuilder(url).build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        String url = String.format("https://api.github.com/orgs/%s/repos?per_page=100", organization);
 
-        if (response.statusCode() != HTTP_OK)
-            throw new RejectedOperationException("Failed to get repositories for organization '" + organization
-                    + "'. Status: " + response.statusCode() + ". Response: " + response.body());
+        while (url != null) {
+            HttpRequest request = createHttpRequestBuilder(url).build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        JsonNode root = mapper.readTree(response.body());
-        if (!root.isArray())
-            throw new UnexpectedFormatException(
-                    "Expected a JSON array for repositories, got: " + root.getNodeType());
+            if (response.statusCode() != HTTP_OK)
+                throw new RejectedOperationException("Failed to get repositories for organization '" + organization
+                        + "'. Status: " + response.statusCode() + ". Response: " + response.body());
 
-        for (JsonNode node : root) {
-            JsonNode nameNode = node.get("name");
-            if (nameNode == null || !nameNode.isTextual())
+            JsonNode root = mapper.readTree(response.body());
+            if (!root.isArray())
                 throw new UnexpectedFormatException(
-                        "Expected 'name' field of type string in each repository object, got: " + node.toString());
-            repositories.add(nameNode.asText());
+                        "Expected a JSON array for repositories, got: " + root.getNodeType());
+
+            for (JsonNode node : root) {
+                JsonNode nameNode = node.get("name");
+                if (nameNode == null || !nameNode.isTextual())
+                    throw new UnexpectedFormatException(
+                            "Expected 'name' field of type string in each repository object, got: " + node.toString());
+                repositories.add(nameNode.asText());
+            }
+
+            url = getNextPageUrl(response);
         }
         return repositories;
     }
@@ -93,28 +98,34 @@ public final class GithubApiImpl implements GithubApi {
     public List<String> fetchRepositoriesForTeam(String organization, String teamSlug)
             throws GithubApiException, IOException, InterruptedException {
 
-        String url = String.format("https://api.github.com/orgs/%s/teams/%s/repos", organization, teamSlug);
-        HttpRequest request = createHttpRequestBuilder(url).build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        if (response.statusCode() != HTTP_OK)
-            throw new RejectedOperationException("Failed to get repositories for team '" + teamSlug
-                    + "' in organization '" + organization + "'. Status: "
-                    + response.statusCode() + ". Response: " + response.body());
-
-        JsonNode root = mapper.readTree(response.body());
-        if (!root.isArray())
-            throw new UnexpectedFormatException(
-                    "Expected a JSON array for the team's repositories, got: " + root.getNodeType());
-
         List<String> repositories = new ArrayList<>();
-        for (JsonNode node : root) {
-            JsonNode fullNameNode = node.get("full_name");
-            if (fullNameNode == null || !fullNameNode.isTextual())
+        String url = String.format("https://api.github.com/orgs/%s/teams/%s/repos?per_page=100", organization,
+                teamSlug);
+
+        while (url != null) {
+            HttpRequest request = createHttpRequestBuilder(url).build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != HTTP_OK)
+                throw new RejectedOperationException("Failed to get repositories for team '" + teamSlug
+                        + "' in organization '" + organization + "'. Status: "
+                        + response.statusCode() + ". Response: " + response.body());
+
+            JsonNode root = mapper.readTree(response.body());
+            if (!root.isArray())
                 throw new UnexpectedFormatException(
-                        "Expected 'full_name' field of type string in each repository object, got: "
-                                + node.toString());
-            repositories.add(fullNameNode.asText());
+                        "Expected a JSON array for the team's repositories, got: " + root.getNodeType());
+
+            for (JsonNode node : root) {
+                JsonNode fullNameNode = node.get("full_name");
+                if (fullNameNode == null || !fullNameNode.isTextual())
+                    throw new UnexpectedFormatException(
+                            "Expected 'full_name' field of type string in each repository object, got: "
+                                    + node.toString());
+                repositories.add(fullNameNode.asText());
+            }
+
+            url = getNextPageUrl(response);
         }
         return repositories;
     }
@@ -159,6 +170,23 @@ public final class GithubApiImpl implements GithubApi {
                 .uri(URI.create(url))
                 .header("Authorization", "Bearer " + token)
                 .header("Accept", "application/vnd.github+json");
+    }
+
+    private String getNextPageUrl(HttpResponse<String> response) {
+        String link = response.headers().firstValue("Link").orElse("");
+        if (link.isEmpty())
+            return null;
+
+        String[] links = link.split(",");
+        for (String linkPart : links) {
+            if (linkPart.contains("rel=\"next\"")) {
+                int start = linkPart.indexOf('<') + 1;
+                int end = linkPart.indexOf('>');
+                if (start > 0 && end > start)
+                    return linkPart.substring(start, end);
+            }
+        }
+        return null;
     }
 
 }
