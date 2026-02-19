@@ -3,39 +3,34 @@ package es.uniovi.raul.solutions.course;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import java.io.IOException;
 import java.time.LocalTime;
 import java.util.*;
 
 import org.junit.jupiter.api.*;
 
+import es.uniovi.raul.solutions.course.naming.SolutionsDetectionStrategy;
 import es.uniovi.raul.solutions.github.*;
-import es.uniovi.raul.solutions.github.GithubApi.*;
 
 class CourseTest {
 
     @Test
     @DisplayName("Course loads groups filtered by 'group ' prefix and loads solutions by naming rule")
-    void courseLoadsGroupsAndSolutions()
-            throws GithubApiException, IOException, InterruptedException {
+    void courseLoadsGroupsAndSolutions() {
         GithubApi api = mock(GithubApi.class);
-
-        // Teams: only those that start with "group " become Course groups
-        when(api.fetchTeams("org")).thenReturn(List.of(
-                new Team("group A1", "a1"),
-                new Team("group B2", "b2"),
-                new Team("random team", "r1")));
-
-        // Repositories: filter by SolutionsNaming.isSolutionRepository (endsWith("solution"))
-        when(api.fetchAllRepositories("org")).thenReturn(List.of(
-                "katas-solution",
-                "project",
-                "lab1-solution"));
+        SolutionsDetectionStrategy detector = mock(SolutionsDetectionStrategy.class);
 
         Map<String, Schedule> schedule = Map.of(
                 "A1", new Schedule("monday", LocalTime.of(10, 0), 60));
 
-        Course course = new Course("org", api, schedule);
+        // Create groups directly
+        Group groupA1 = new Group("A1", "a1", Optional.of(schedule.get("A1")),
+                "org", api, detector);
+        Group groupB2 = new Group("B2", "b2", Optional.empty(),
+                "org", api, detector);
+
+        List<String> solutions = List.of("katas-solution", "lab1-solution");
+
+        Course course = new Course("org", schedule, List.of(groupA1, groupB2), solutions);
 
         // Groups
         var groups = course.getGroups();
@@ -63,37 +58,29 @@ class CourseTest {
     }
 
     @Test
-    @DisplayName("Course propagates API exceptions from GithubConnection")
-    void coursePropagatesApiErrors()
-            throws GithubApiException, IOException, InterruptedException {
-        GithubApi api = mock(GithubApi.class);
-        when(api.fetchTeams("org")).thenThrow(new RejectedOperationException("rate limited"));
-
-        assertThrows(GithubApiException.class, () -> new Course("org", api));
-    }
-
-    @Test
     @DisplayName("Null checks in Course constructor")
     void courseNullChecks() {
-        GithubApi api = mock(GithubApi.class);
-        assertThrows(IllegalArgumentException.class, () -> new Course(null, api));
-        assertThrows(IllegalArgumentException.class, () -> new Course("org", null));
-        assertThrows(IllegalArgumentException.class, () -> new Course("org", api, null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Course(null, Map.of(), List.of(), List.of()));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Course("org", null, List.of(), List.of()));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Course("org", Map.of(), null, List.of()));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Course("org", Map.of(), List.of(), null));
     }
 
     @Test
     @DisplayName("Course handles empty teams and repositories, and ignores non-group teams")
-    void courseHandlesEmptyAndNonGroup() throws Exception {
+    void courseHandlesEmptyAndNonGroup() {
         GithubApi api = mock(GithubApi.class);
-        when(api.fetchTeams("org")).thenReturn(List.of(
-                new Team("random", "r"),
-                new Team("group ", "empty"), // becomes empty group name
-                new Team("group X", "x"),
-                new Team("group X", "x-dup") // duplicate display name allowed; results in two groups with same name
-        ));
-        when(api.fetchAllRepositories("org")).thenReturn(List.of());
+        SolutionsDetectionStrategy detector = mock(SolutionsDetectionStrategy.class);
 
-        Course course = new Course("org", api, Map.of());
+        // Create two groups with name "X" (duplicate names allowed)
+        Group groupX1 = new Group("X", "x", Optional.empty(), "org", api, detector);
+        Group groupX2 = new Group("X", "x-dup", Optional.empty(), "org", api, detector);
+
+        Course course = new Course("org", Map.of(), List.of(groupX1, groupX2), List.of());
 
         var groups = course.getGroups();
         // Only those starting with "group " and something else after it are valid
@@ -105,18 +92,18 @@ class CourseTest {
 
     @Test
     @DisplayName("Course handles schedule with group not present in organization teams")
-    void courseHandlesScheduleGroupNotInTeams() throws Exception {
+    void courseHandlesScheduleGroupNotInTeams() {
         GithubApi api = mock(GithubApi.class);
-        // Only group B2 is present in teams
-        when(api.fetchTeams("org")).thenReturn(List.of(
-                new Team("group B2", "b2")));
-        when(api.fetchAllRepositories("org")).thenReturn(List.of());
+        SolutionsDetectionStrategy detector = mock(SolutionsDetectionStrategy.class);
+
+        // Only group B2 is present
+        Group groupB2 = new Group("B2", "b2", Optional.empty(), "org", api, detector);
 
         Map<String, Schedule> schedule = Map.of(
                 "A1", new Schedule("monday", LocalTime.of(10, 0), 60));
 
-        // Should not throw exception even though A1 is not in teams
-        Course course = new Course("org", api, schedule);
+        // Should not throw exception even though A1 is in schedule but not in groups
+        Course course = new Course("org", schedule, List.of(groupB2), List.of());
 
         // Only B2 group should be present
         var groups = course.getGroups();

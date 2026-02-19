@@ -19,6 +19,13 @@ import es.uniovi.raul.solutions.course.Schedule;
  */
 public final class ScheduleLoader {
 
+    /**
+     * Loads schedules from a CSV file. The expected format is:
+     * group, weekday, start_time, duration
+     *
+     * @param scheduleFile the path to the CSV file
+     * @return a mapping from group names to their schedules
+     */
     public static Map<String, Schedule> load(String scheduleFile) throws IOException, InvalidScheduleFormat {
         Map<String, Schedule> schedules = new HashMap<>();
 

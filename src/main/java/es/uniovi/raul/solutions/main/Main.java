@@ -1,6 +1,7 @@
 package es.uniovi.raul.solutions.main;
 
 import static es.uniovi.raul.solutions.cli.Console.*;
+import static es.uniovi.raul.solutions.course.naming.TeamNaming.*;
 
 import java.io.*;
 import java.time.Clock;
@@ -9,7 +10,7 @@ import java.util.*;
 import es.uniovi.raul.solutions.cli.*;
 import es.uniovi.raul.solutions.cli.Console;
 import es.uniovi.raul.solutions.course.*;
-import es.uniovi.raul.solutions.course.naming.RegexSolutionDetector;
+import es.uniovi.raul.solutions.course.naming.*;
 import es.uniovi.raul.solutions.github.*;
 import es.uniovi.raul.solutions.github.GithubApi.GithubApiException;
 import es.uniovi.raul.solutions.main.agents.*;
@@ -48,7 +49,7 @@ public class Main {
     static int run(Arguments arguments) throws IOException, InvalidScheduleFormat, GithubApiException,
             InterruptedException {
 
-        var schedule = loadSchedule(arguments.scheduleFile);
+        final var schedule = loadSchedule(arguments.scheduleFile);
 
         System.out.print("Connecting with Github... ");
         GithubApi connection = new GithubApiImpl(arguments.token);
@@ -56,9 +57,10 @@ public class Main {
             connection = new DryRunGithubApi(connection);
             System.out.println("=== DRY RUN MODE - No changes will be made ===\n");
         }
+        System.out.println("done.");
 
-        var course = new Course(arguments.organization, connection, schedule,
-                new RegexSolutionDetector(arguments.solutionRegex));
+        System.out.print("Fetching groups and solutions... ");
+        var course = createCourse(arguments, schedule, connection);
         System.out.println("done.\n");
 
         // If there are no groups or solutions, there's nothing to do. Print an informative message and exit.
@@ -84,6 +86,15 @@ public class Main {
         return 0;
     }
 
+    private static Course createCourse(Arguments arguments, final Map<String, Schedule> schedule, GithubApi connection)
+            throws GithubApiException, IOException, InterruptedException {
+
+        var solutionsDetector = new RegexSolutionDetector(arguments.solutionRegex);
+        var groups = fetchGroups(arguments.organization, connection, schedule, solutionsDetector);
+        var solutions = fetchSolutions(arguments.organization, connection, solutionsDetector);
+        return new Course(arguments.organization, schedule, groups, solutions);
+    }
+
     private static Map<String, Schedule> loadSchedule(String scheduleFile)
             throws IOException, ScheduleLoader.InvalidScheduleFormat {
 
@@ -106,5 +117,34 @@ public class Main {
         System.out.println("done.");
 
         return schedules;
+    }
+
+    private static List<Group> fetchGroups(String organizationName, GithubApi githubApi,
+            Map<String, Schedule> schedule, SolutionsDetectionStrategy solutionsDetector)
+            throws GithubApiException, IOException, InterruptedException {
+
+        List<Team> filteredTeams = githubApi
+                .fetchTeams(organizationName).stream()
+                .filter(team -> isGroupTeam(team.displayName()))
+                .toList();
+
+        List<Group> groupTeams = new ArrayList<>();
+        for (var team : filteredTeams) {
+            var group = toGroup(team.displayName());
+            groupTeams.add(
+                    new Group(group, team.slug(), Optional.ofNullable(schedule.get(group)),
+                            organizationName, githubApi, solutionsDetector));
+        }
+
+        return groupTeams;
+    }
+
+    private static List<String> fetchSolutions(String organizationName, GithubApi githubApi,
+            SolutionsDetectionStrategy solutionsDetector)
+            throws GithubApiException, IOException, InterruptedException {
+
+        return githubApi.fetchAllRepositories(organizationName).stream()
+                .filter(solutionsDetector::isSolutionRepository)
+                .toList();
     }
 }

@@ -63,11 +63,11 @@ public final class AutoGrantAgent {
 
     public Optional<String> guessSolution(Group group, List<String> allSolutions)
             throws GithubApiException, IOException, InterruptedException {
-        for (String solution : allSolutions.stream().sorted().toList()) {
-            if (!group.hasAccessTo(solution)) {
+
+        for (String solution : allSolutions.stream().sorted().toList())
+            if (!group.hasAccessTo(solution))
                 return Optional.of(solution);
-            }
-        }
+
         return Optional.empty();
     }
 
