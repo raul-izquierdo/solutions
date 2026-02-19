@@ -5,10 +5,10 @@ import java.util.regex.Pattern;
 /**
  * Identifies solution repositories based on a regular expression.
  */
-public final class RegExpIdentifier implements SolutionIdentifier {
+public final class RegexSolutionDetector implements SolutionsDetectionStrategy {
     private final Pattern pattern;
 
-    public RegExpIdentifier(String expression) {
+    public RegexSolutionDetector(String expression) {
         this.pattern = Pattern.compile(expression);
     }
 

@@ -22,7 +22,7 @@ public final class Course {
     private final String organizationName;
     private final GithubApi githubApi;
     private final Map<String, Schedule> schedule;
-    private final SolutionIdentifier solutionIdentifier;
+    private final SolutionsDetectionStrategy solutionsDetector;
 
     private final List<Group> groups;
     private final List<String> solutions;
@@ -36,11 +36,11 @@ public final class Course {
     public Course(String organizationName, GithubApi githubApi, Map<String, Schedule> schedule)
             throws GithubApiException, IOException, InterruptedException {
 
-        this(organizationName, githubApi, schedule, new RegExpIdentifier(".*solution$"));
+        this(organizationName, githubApi, schedule, new RegexSolutionDetector(".*solution$"));
     }
 
     public Course(String organizationName, GithubApi githubApi, Map<String, Schedule> schedule,
-            SolutionIdentifier solutionIdentifier)
+            SolutionsDetectionStrategy solutionIdentifier)
             throws GithubApiException, IOException, InterruptedException {
 
         notNull(githubApi, organizationName, schedule);
@@ -49,23 +49,11 @@ public final class Course {
         this.githubApi = githubApi;
         this.schedule = Map.copyOf(schedule);
 
-        this.solutionIdentifier = solutionIdentifier;
+        this.solutionsDetector = solutionIdentifier;
 
         this.groups = List.copyOf(fetchGroups());
         this.solutions = List.copyOf(fetchSolutions());
 
-    }
-
-    public GithubApi githubConnection() {
-        return githubApi;
-    }
-
-    public String getOrganizationName() {
-        return organizationName;
-    }
-
-    public SolutionIdentifier getSolutionIdentifier() {
-        return solutionIdentifier;
     }
 
     /**
@@ -83,7 +71,6 @@ public final class Course {
     }
 
     public boolean solutionExists(String solution) {
-
         notNull(solution);
 
         return getSolutions().contains(solution);
@@ -105,7 +92,7 @@ public final class Course {
             var group = toGroup(team.displayName());
             groupTeams.add(
                     new Group(group, team.slug(), Optional.ofNullable(schedule.get(group)),
-                            organizationName, githubApi, solutionIdentifier));
+                            organizationName, githubApi, solutionsDetector));
         }
 
         return groupTeams;
@@ -115,7 +102,7 @@ public final class Course {
             throws GithubApiException, IOException, InterruptedException {
 
         return githubApi.fetchAllRepositories(organizationName).stream()
-                .filter(solutionIdentifier::isSolutionRepository)
+                .filter(solutionsDetector::isSolutionRepository)
                 .toList();
     }
 }

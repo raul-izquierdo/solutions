@@ -4,9 +4,10 @@ import static es.uniovi.raul.solutions.debug.Debug.*;
 
 /**
  * Strategy for naming teams based on their group.
+ *
+ * There is no need for a proper Strategy Pattern.
  */
 
-// There is no need for a proper Strategy Pattern
 public final class TeamNaming {
 
     private static final String PREFIX = "group ";

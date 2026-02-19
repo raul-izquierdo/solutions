@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.time.LocalTime;
 import java.util.*;
 
-import es.uniovi.raul.solutions.course.naming.SolutionIdentifier;
+import es.uniovi.raul.solutions.course.naming.SolutionsDetectionStrategy;
 import es.uniovi.raul.solutions.github.GithubApi;
 import es.uniovi.raul.solutions.github.GithubApi.GithubApiException;
 
@@ -18,15 +18,15 @@ public final class Group {
     private final String name;
     private final String teamSlug;
     private final Optional<Schedule> schedule;
-
-    // Lazy loading fields
     private final String organizationName;
     private final GithubApi githubApi;
-    private final SolutionIdentifier solutionIdentifier;
-    private List<String> accessibleSolutions; // null = not loaded yet
+    private final SolutionsDetectionStrategy solutionIdentifier;
 
-    Group(String name, String teamSlug, Optional<Schedule> schedule,
-            String organizationName, GithubApi githubApi, SolutionIdentifier solutionIdentifier) {
+    // Accesible solutions -> solution repositories that the group has access to. This is a subset of the solutions in the course. Lazily loaded and cached.
+    private List<String> accesibleSolutions; // null = not loaded yet
+
+    public Group(String name, String teamSlug, Optional<Schedule> schedule,
+            String organizationName, GithubApi githubApi, SolutionsDetectionStrategy solutionIdentifier) {
         notNull(name, teamSlug, schedule, organizationName, githubApi, solutionIdentifier);
 
         this.name = name;
@@ -35,7 +35,7 @@ public final class Group {
         this.organizationName = organizationName;
         this.githubApi = githubApi;
         this.solutionIdentifier = solutionIdentifier;
-        this.accessibleSolutions = null; // Lazy loading
+        this.accesibleSolutions = null; // Lazy loading
     }
 
     public String name() {
@@ -46,26 +46,25 @@ public final class Group {
         return schedule;
     }
 
-    public String getSlug() {
-        return teamSlug;
-    }
-
     public boolean isScheduledFor(String day, LocalTime time) {
         notNull(day, time);
 
         return schedule.map(groupSchedule -> groupSchedule.includes(day, time)).orElse(false);
     }
 
-    public List<String> getAccessibleSolutions()
+    /**
+     * Returns the list of solution repositories that the group has access to. This is a subset of the solutions in the course.
+     */
+    public List<String> getAccesibleSolutions()
             throws GithubApiException, IOException, InterruptedException {
-        return ensureAccessibleSolutions();
+        return fetchSolutionsIfNeeded();
     }
 
     public boolean hasAccessTo(String solution)
             throws GithubApiException, IOException, InterruptedException {
         notNull(solution);
 
-        return ensureAccessibleSolutions().contains(solution);
+        return fetchSolutionsIfNeeded().contains(solution);
     }
 
     public void grantAccess(String solution)
@@ -76,7 +75,7 @@ public final class Group {
         githubApi.grantAccess(organizationName, solution, teamSlug);
 
         // Invalidate cache since access has changed
-        accessibleSolutions = null;
+        accesibleSolutions = null;
     }
 
     public void revokeAccess(String solution)
@@ -87,19 +86,22 @@ public final class Group {
         githubApi.revokeAccess(organizationName, solution, teamSlug);
 
         // Invalidate cache since access has changed
-        accessibleSolutions = null;
+        accesibleSolutions = null;
     }
 
-    private List<String> ensureAccessibleSolutions()
+    // Lazy loading of the solution repositories that the group has access to.
+    private List<String> fetchSolutionsIfNeeded()
             throws GithubApiException, IOException, InterruptedException {
-        if (accessibleSolutions == null) {
-            accessibleSolutions = fetchGroupSolutions();
+        if (accesibleSolutions == null) {
+            accesibleSolutions = fetchAccesibleSolutions();
         }
-        return Collections.unmodifiableList(accessibleSolutions);
+        return Collections.unmodifiableList(accesibleSolutions);
     }
 
-    private List<String> fetchGroupSolutions()
+    // Fetches the list of solution repositories that the group has access to.
+    private List<String> fetchAccesibleSolutions()
             throws GithubApiException, IOException, InterruptedException {
+
         return githubApi
                 .fetchRepositoriesForTeam(organizationName, teamSlug)
                 .stream()
@@ -110,7 +112,9 @@ public final class Group {
 
     /**
      * Extracts the repository name from a full name that may include organization prefix.
-     * For example: "org/repo" -> "repo", "repo" -> "repo"
+     * For example:
+     * "org/repo" -> "repo"
+     * "repo" -> "repo"
      */
     private String extractRepositoryName(String fullName) {
         int lastSlash = fullName.lastIndexOf('/');

@@ -9,7 +9,7 @@ import java.util.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import es.uniovi.raul.solutions.course.naming.SolutionIdentifier;
+import es.uniovi.raul.solutions.course.naming.SolutionsDetectionStrategy;
 import es.uniovi.raul.solutions.github.GithubApi;
 
 class GroupTest {
@@ -17,7 +17,7 @@ class GroupTest {
     private Group createTestGroup(String name, String teamSlug, List<String> expectedSolutions,
             Optional<Schedule> schedule) {
         GithubApi api = mock(GithubApi.class);
-        SolutionIdentifier identifier = mock(SolutionIdentifier.class);
+        SolutionsDetectionStrategy identifier = mock(SolutionsDetectionStrategy.class);
         String org = "test-org";
 
         try {
@@ -44,7 +44,7 @@ class GroupTest {
         assertTrue(g.schedule().isPresent());
 
         // Only solution repos, and repo name is trimmed from org/
-        assertEquals(List.of("a-solution", "b-solution"), g.getAccessibleSolutions());
+        assertEquals(List.of("a-solution", "b-solution"), g.getAccesibleSolutions());
         assertTrue(g.hasAccessTo("a-solution"));
         assertFalse(g.hasAccessTo("lib"));
 
@@ -57,7 +57,7 @@ class GroupTest {
     @DisplayName("Constructor null checks")
     void constructorNullChecks() {
         GithubApi api = mock(GithubApi.class);
-        SolutionIdentifier identifier = mock(SolutionIdentifier.class);
+        SolutionsDetectionStrategy identifier = mock(SolutionsDetectionStrategy.class);
 
         assertThrows(IllegalArgumentException.class,
                 () -> new Group(null, "slug", Optional.empty(), "org", api, identifier));
@@ -77,7 +77,7 @@ class GroupTest {
     @DisplayName("Group with no accessible solutions returns empty list and hasAccessTo=false")
     void noAccessibleSolutions() throws Exception {
         Group g = createTestGroup("G", "slug", List.of(), Optional.empty());
-        assertTrue(g.getAccessibleSolutions().isEmpty());
+        assertTrue(g.getAccesibleSolutions().isEmpty());
         assertFalse(g.hasAccessTo("a-solution"));
     }
 
@@ -95,7 +95,7 @@ class GroupTest {
     @DisplayName("Group.grantAccess delegates to GithubApi and invalidates cache")
     void grantAccessDelegatesAndInvalidatesCache() throws Exception {
         GithubApi api = mock(GithubApi.class);
-        SolutionIdentifier identifier = mock(SolutionIdentifier.class);
+        SolutionsDetectionStrategy identifier = mock(SolutionsDetectionStrategy.class);
 
         when(api.fetchRepositoriesForTeam("org", "team-slug"))
                 .thenReturn(List.of("org/solution1"))
@@ -105,14 +105,14 @@ class GroupTest {
         Group group = new Group("G1", "team-slug", Optional.empty(), "org", api, identifier);
 
         // Initial state - only solution1
-        assertEquals(List.of("solution1"), group.getAccessibleSolutions());
+        assertEquals(List.of("solution1"), group.getAccesibleSolutions());
 
         // Grant access to solution2
         group.grantAccess("solution2");
         verify(api).grantAccess("org", "solution2", "team-slug");
 
         // Cache should be invalidated and refetch on next call
-        assertEquals(List.of("solution1", "solution2"), group.getAccessibleSolutions());
+        assertEquals(List.of("solution1", "solution2"), group.getAccesibleSolutions());
         verify(api, times(2)).fetchRepositoriesForTeam("org", "team-slug");
     }
 
@@ -120,7 +120,7 @@ class GroupTest {
     @DisplayName("Group.revokeAccess delegates to GithubApi and invalidates cache")
     void revokeAccessDelegatesAndInvalidatesCache() throws Exception {
         GithubApi api = mock(GithubApi.class);
-        SolutionIdentifier identifier = mock(SolutionIdentifier.class);
+        SolutionsDetectionStrategy identifier = mock(SolutionsDetectionStrategy.class);
 
         when(api.fetchRepositoriesForTeam("org", "team-slug"))
                 .thenReturn(List.of("org/solution1", "org/solution2"))
@@ -130,14 +130,14 @@ class GroupTest {
         Group group = new Group("G1", "team-slug", Optional.empty(), "org", api, identifier);
 
         // Initial state - both solutions
-        assertEquals(List.of("solution1", "solution2"), group.getAccessibleSolutions());
+        assertEquals(List.of("solution1", "solution2"), group.getAccesibleSolutions());
 
         // Revoke access to solution2
         group.revokeAccess("solution2");
         verify(api).revokeAccess("org", "solution2", "team-slug");
 
         // Cache should be invalidated and refetch on next call
-        assertEquals(List.of("solution1"), group.getAccessibleSolutions());
+        assertEquals(List.of("solution1"), group.getAccesibleSolutions());
         verify(api, times(2)).fetchRepositoriesForTeam("org", "team-slug");
     }
 

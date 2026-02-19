@@ -9,7 +9,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import es.uniovi.raul.solutions.course.naming.SolutionIdentifier;
+import es.uniovi.raul.solutions.course.naming.SolutionsDetectionStrategy;
 import es.uniovi.raul.solutions.github.GithubApi;
 
 class LazyLoadingTest {
@@ -19,7 +19,7 @@ class LazyLoadingTest {
     void groupLoadsolutionsLazily() throws Exception {
         // Arrange
         GithubApi mockApi = mock(GithubApi.class);
-        SolutionIdentifier mockIdentifier = mock(SolutionIdentifier.class);
+        SolutionsDetectionStrategy mockIdentifier = mock(SolutionsDetectionStrategy.class);
 
         when(mockApi.fetchRepositoriesForTeam("org", "team-slug"))
                 .thenReturn(List.of("org/solution1", "solution2", "other-repo"));
@@ -35,7 +35,7 @@ class LazyLoadingTest {
         verify(mockApi, never()).fetchRepositoriesForTeam(any(), any());
 
         // First access triggers the API call
-        List<String> solutions = group.getAccessibleSolutions();
+        List<String> solutions = group.getAccesibleSolutions();
 
         // Verify API was called and results are correct
         verify(mockApi, times(1)).fetchRepositoriesForTeam("org", "team-slug");
@@ -54,7 +54,7 @@ class LazyLoadingTest {
     void hasAccessToWorksWithLazyLoading() throws Exception {
         // Arrange
         GithubApi mockApi = mock(GithubApi.class);
-        SolutionIdentifier mockIdentifier = mock(SolutionIdentifier.class);
+        SolutionsDetectionStrategy mockIdentifier = mock(SolutionsDetectionStrategy.class);
 
         when(mockApi.fetchRepositoriesForTeam("org", "team-slug"))
                 .thenReturn(List.of("solution1"));

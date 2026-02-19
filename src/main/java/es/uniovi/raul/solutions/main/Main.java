@@ -9,12 +9,11 @@ import java.util.*;
 import es.uniovi.raul.solutions.cli.*;
 import es.uniovi.raul.solutions.cli.Console;
 import es.uniovi.raul.solutions.course.*;
-import es.uniovi.raul.solutions.course.naming.RegExpIdentifier;
-import es.uniovi.raul.solutions.github.DryRunGithubApi;
-import es.uniovi.raul.solutions.github.GithubApi;
+import es.uniovi.raul.solutions.course.naming.RegexSolutionDetector;
+import es.uniovi.raul.solutions.github.*;
 import es.uniovi.raul.solutions.github.GithubApi.GithubApiException;
 import es.uniovi.raul.solutions.main.agents.*;
-import es.uniovi.raul.solutions.github.GithubApiImpl;
+import es.uniovi.raul.solutions.schedule.ScheduleLoader;
 import es.uniovi.raul.solutions.schedule.ScheduleLoader.InvalidScheduleFormat;
 
 /**
@@ -59,7 +58,7 @@ public class Main {
         }
 
         var course = new Course(arguments.organization, connection, schedule,
-                new RegExpIdentifier(arguments.solutionRegex));
+                new RegexSolutionDetector(arguments.solutionRegex));
         System.out.println("done.\n");
 
         // If there are no groups or solutions, there's nothing to do. Print an informative message and exit.
@@ -86,7 +85,7 @@ public class Main {
     }
 
     private static Map<String, Schedule> loadSchedule(String scheduleFile)
-            throws IOException, es.uniovi.raul.solutions.schedule.ScheduleLoader.InvalidScheduleFormat {
+            throws IOException, ScheduleLoader.InvalidScheduleFormat {
 
         // If scheduleFile is the default "schedule.csv" and doesn't exist, return empty map
         if ("schedule.csv".equals(scheduleFile)) {
@@ -100,10 +99,9 @@ public class Main {
 
         System.out.print("\nLoading schedule from '" + scheduleFile + "'... ");
 
-        var schedules = es.uniovi.raul.solutions.schedule.ScheduleLoader.load(scheduleFile);
+        var schedules = ScheduleLoader.load(scheduleFile);
         if (schedules.isEmpty())
-            throw new es.uniovi.raul.solutions.schedule.ScheduleLoader.InvalidScheduleFormat(
-                    scheduleFile + " is empty.");
+            throw new ScheduleLoader.InvalidScheduleFormat(scheduleFile + " is empty.");
 
         System.out.println("done.");
 
