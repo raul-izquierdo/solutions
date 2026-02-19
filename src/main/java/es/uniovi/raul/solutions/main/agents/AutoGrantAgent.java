@@ -31,11 +31,11 @@ public final class AutoGrantAgent {
     public boolean tryAutomaticSelection(Course course)
             throws GithubApiException, IOException, InterruptedException {
 
-        var guessedGroupOpt = guessGroup(course.getGroups());
+        var guessedGroupOpt = guessGroup(course.groups());
         if (guessedGroupOpt.isEmpty())
             return false;
 
-        var guessedSolutionOpt = guessSolution(guessedGroupOpt.get(), course.getSolutions());
+        var guessedSolutionOpt = guessSolution(guessedGroupOpt.get(), course.solutions());
         if (guessedSolutionOpt.isEmpty())
             return false;
 

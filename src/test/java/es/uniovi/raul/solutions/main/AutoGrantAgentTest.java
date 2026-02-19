@@ -23,8 +23,8 @@ class AutoGrantAgentTest {
 
     private static Course courseWithGroups(List<Group> groups, List<String> solutions) {
         Course course = mock(Course.class);
-        when(course.getGroups()).thenReturn(groups);
-        when(course.getSolutions()).thenReturn(solutions);
+        when(course.groups()).thenReturn(groups);
+        when(course.solutions()).thenReturn(solutions);
         when(course.solutionExists(anyString())).thenAnswer(inv -> solutions.contains(inv.getArgument(0)));
 
         return course;

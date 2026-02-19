@@ -37,8 +37,8 @@ public final class ManualGrantAgent {
     private Group chooseGroup(Course course) throws IOException {
 
         System.out.println("Choose the group:");
-        int selectedGroupIndex = showOptions(course.getGroups().stream().map(Group::name).toList());
-        return course.getGroups().get(selectedGroupIndex);
+        int selectedGroupIndex = showOptions(course.groups().stream().map(Group::name).toList());
+        return course.groups().get(selectedGroupIndex);
     }
 
     private String chooseSolution(Course course, Group chosenGroup)
@@ -47,7 +47,7 @@ public final class ManualGrantAgent {
         System.out.println("Choose the solution:");
 
         // One thing is the solution names ("solution1"), another is what the user sees ("solution1 [accessible]")
-        var sortedSolutions = course.getSolutions().stream().sorted().toList();
+        var sortedSolutions = course.solutions().stream().sorted().toList();
         var userOptions = new ArrayList<String>();
 
         // Use for loop to avoid lambda exception issues

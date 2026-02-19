@@ -30,10 +30,10 @@ class CourseTest {
 
         List<String> solutions = List.of("katas-solution", "lab1-solution");
 
-        Course course = new Course("org", schedule, List.of(groupA1, groupB2), solutions);
+        Course course = new Course(List.of(groupA1, groupB2), solutions);
 
         // Groups
-        var groups = course.getGroups();
+        var groups = course.groups();
         assertEquals(2, groups.size());
         assertTrue(groups.stream().anyMatch(g -> g.name().equals("A1")));
         assertTrue(groups.stream().anyMatch(g -> g.name().equals("B2")));
@@ -49,7 +49,7 @@ class CourseTest {
         assertTrue(schB2.isEmpty());
 
         // Solutions list filtered
-        var sols = course.getSolutions();
+        var sols = course.solutions();
         assertEquals(List.of("katas-solution", "lab1-solution"), sols);
 
         // solutionExists helper
@@ -61,13 +61,9 @@ class CourseTest {
     @DisplayName("Null checks in Course constructor")
     void courseNullChecks() {
         assertThrows(IllegalArgumentException.class,
-                () -> new Course(null, Map.of(), List.of(), List.of()));
+                () -> new Course(null, List.of()));
         assertThrows(IllegalArgumentException.class,
-                () -> new Course("org", null, List.of(), List.of()));
-        assertThrows(IllegalArgumentException.class,
-                () -> new Course("org", Map.of(), null, List.of()));
-        assertThrows(IllegalArgumentException.class,
-                () -> new Course("org", Map.of(), List.of(), null));
+                () -> new Course(List.of(), null));
     }
 
     @Test
@@ -80,14 +76,14 @@ class CourseTest {
         Group groupX1 = new Group("X", "x", Optional.empty(), "org", api, detector);
         Group groupX2 = new Group("X", "x-dup", Optional.empty(), "org", api, detector);
 
-        Course course = new Course("org", Map.of(), List.of(groupX1, groupX2), List.of());
+        Course course = new Course(List.of(groupX1, groupX2), List.of());
 
-        var groups = course.getGroups();
+        var groups = course.groups();
         // Only those starting with "group " and something else after it are valid
         assertEquals(2, groups.size());
         assertEquals(2, groups.stream().filter(g -> g.name().equals("X")).count());
 
-        assertTrue(course.getSolutions().isEmpty());
+        assertTrue(course.solutions().isEmpty());
     }
 
     @Test
@@ -99,14 +95,10 @@ class CourseTest {
         // Only group B2 is present
         Group groupB2 = new Group("B2", "b2", Optional.empty(), "org", api, detector);
 
-        Map<String, Schedule> schedule = Map.of(
-                "A1", new Schedule("monday", LocalTime.of(10, 0), 60));
-
-        // Should not throw exception even though A1 is in schedule but not in groups
-        Course course = new Course("org", schedule, List.of(groupB2), List.of());
+        Course course = new Course(List.of(groupB2), List.of());
 
         // Only B2 group should be present
-        var groups = course.getGroups();
+        var groups = course.groups();
         assertEquals(1, groups.size());
         assertTrue(groups.stream().anyMatch(group -> group.name().equals("B2")));
     }

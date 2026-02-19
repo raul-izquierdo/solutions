@@ -64,11 +64,11 @@ public class Main {
         System.out.println("done.\n");
 
         // If there are no groups or solutions, there's nothing to do. Print an informative message and exit.
-        if (course.getGroups().isEmpty()) {
+        if (course.groups().isEmpty()) {
             printWarning("No groups found in the organization. Exiting.");
             return 2;
         }
-        if (course.getSolutions().isEmpty()) {
+        if (course.solutions().isEmpty()) {
             printWarning("No solutions found in the organization. Exiting.");
             return 2;
         }
@@ -92,7 +92,7 @@ public class Main {
         var solutionsDetector = new RegexSolutionDetector(arguments.solutionRegex);
         var groups = fetchGroups(arguments.organization, connection, schedule, solutionsDetector);
         var solutions = fetchSolutions(arguments.organization, connection, solutionsDetector);
-        return new Course(arguments.organization, schedule, groups, solutions);
+        return new Course(groups, solutions);
     }
 
     private static Map<String, Schedule> loadSchedule(String scheduleFile)
