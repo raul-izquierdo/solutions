@@ -10,6 +10,8 @@ import java.util.*;
 import org.junit.jupiter.api.*;
 
 import es.uniovi.raul.solutions.course.*;
+import es.uniovi.raul.solutions.course.naming.SolutionsDetectionStrategy;
+import es.uniovi.raul.solutions.github.GithubApi;
 import es.uniovi.raul.solutions.main.agents.*;
 
 class AutoGrantAgentTest {
@@ -22,54 +24,75 @@ class AutoGrantAgentTest {
     }
 
     private static Course courseWithGroups(List<Group> groups, List<String> solutions) {
-        Course course = mock(Course.class);
-        when(course.groups()).thenReturn(groups);
-        when(course.solutions()).thenReturn(solutions);
-
-        return course;
+        return new Course(groups, solutions);
     }
 
     private static Group group(String name, String day, int startHour, int startMinute, int minutes,
-            String... hasAccess) {
-        Group g = mock(Group.class);
-        when(g.name()).thenReturn(name);
-        Schedule s = new Schedule(day, LocalTime.of(startHour, startMinute), minutes);
-        when(g.schedule()).thenReturn(Optional.of(s));
-        when(g.isScheduledFor(anyString(), any()))
-                .thenAnswer(inv -> s.includes(inv.getArgument(0), inv.getArgument(1)));
-        Set<String> access = new HashSet<>(Arrays.asList(hasAccess));
-        try {
-            when(g.hasAccessTo(anyString())).thenAnswer(inv -> access.contains(inv.getArgument(0)));
-            // Mock grantAccess to update the access set
-            doAnswer(inv -> {
-                String solution = inv.getArgument(0);
-                access.add(solution);
-                return null;
-            }).when(g).grantAccess(anyString());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return g;
+            String... hasAccess) throws Exception {
+        GithubApi mockApi = mock(GithubApi.class);
+        Schedule schedule = new Schedule(day, LocalTime.of(startHour, startMinute), minutes);
+
+        // Use a shared mutable list that will be modified by grantAccess/revokeAccess
+        List<String> accessList = new ArrayList<>(Arrays.asList(hasAccess));
+
+        // Return the current state of the list each time it's fetched
+        when(mockApi.fetchRepositoriesForTeam(anyString(), anyString()))
+                .thenAnswer(inv -> new ArrayList<>(accessList));
+
+        // Update the list when grantAccess is called
+        doAnswer(inv -> {
+            String solution = inv.getArgument(1); // repository name is second argument
+            if (!accessList.contains(solution)) {
+                accessList.add(solution);
+            }
+            return null;
+        }).when(mockApi).grantAccess(anyString(), anyString(), anyString());
+
+        // Update the list when revokeAccess is called
+        doAnswer(inv -> {
+            String solution = inv.getArgument(1); // repository name is second argument
+            accessList.remove(solution);
+            return null;
+        }).when(mockApi).revokeAccess(anyString(), anyString(), anyString());
+
+        SolutionsDetectionStrategy mockDetector = mock(SolutionsDetectionStrategy.class);
+        when(mockDetector.isSolutionRepository(anyString())).thenReturn(true);
+
+        return new Group(name, "team-" + name.toLowerCase(), Optional.of(schedule),
+                mockApi, "test-org", mockDetector);
     }
 
-    private static Group groupNoSchedule(String name, String... hasAccess) {
-        Group g = mock(Group.class);
-        when(g.name()).thenReturn(name);
-        when(g.schedule()).thenReturn(Optional.empty());
-        when(g.isScheduledFor(anyString(), any())).thenReturn(false);
-        Set<String> access = new HashSet<>(Arrays.asList(hasAccess));
-        try {
-            when(g.hasAccessTo(anyString())).thenAnswer(inv -> access.contains(inv.getArgument(0)));
-            // Mock grantAccess to update the access set
-            doAnswer(inv -> {
-                String solution = inv.getArgument(0);
-                access.add(solution);
-                return null;
-            }).when(g).grantAccess(anyString());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return g;
+    private static Group groupNoSchedule(String name, String... hasAccess) throws Exception {
+        GithubApi mockApi = mock(GithubApi.class);
+
+        // Use a shared mutable list that will be modified by grantAccess/revokeAccess
+        List<String> accessList = new ArrayList<>(Arrays.asList(hasAccess));
+
+        // Return the current state of the list each time it's fetched
+        when(mockApi.fetchRepositoriesForTeam(anyString(), anyString()))
+                .thenAnswer(inv -> new ArrayList<>(accessList));
+
+        // Update the list when grantAccess is called
+        doAnswer(inv -> {
+            String solution = inv.getArgument(1); // repository name is second argument
+            if (!accessList.contains(solution)) {
+                accessList.add(solution);
+            }
+            return null;
+        }).when(mockApi).grantAccess(anyString(), anyString(), anyString());
+
+        // Update the list when revokeAccess is called
+        doAnswer(inv -> {
+            String solution = inv.getArgument(1); // repository name is second argument
+            accessList.remove(solution);
+            return null;
+        }).when(mockApi).revokeAccess(anyString(), anyString(), anyString());
+
+        SolutionsDetectionStrategy mockDetector = mock(SolutionsDetectionStrategy.class);
+        when(mockDetector.isSolutionRepository(anyString())).thenReturn(true);
+
+        return new Group(name, "team-" + name.toLowerCase(), Optional.empty(),
+                mockApi, "test-org", mockDetector);
     }
 
     @Test
