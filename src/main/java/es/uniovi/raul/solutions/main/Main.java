@@ -59,7 +59,7 @@ public class Main {
         }
         System.out.println("done.");
 
-        System.out.print("Fetching groups and solutions... ");
+        System.out.println("Fetching groups and solutions... ");
         var course = createCourse(arguments, schedule, connection);
         System.out.println("done.\n");
 
@@ -114,7 +114,7 @@ public class Main {
         if (schedules.isEmpty())
             throw new ScheduleLoader.InvalidScheduleFormat(scheduleFile + " is empty.");
 
-        System.out.println("done.");
+        System.out.printf("Found %d groups: %s.%n%n", schedules.size(), String.join(", ", schedules.keySet()));
 
         return schedules;
     }
@@ -123,10 +123,13 @@ public class Main {
             Map<String, Schedule> schedule, SolutionsDetectionStrategy solutionsDetector)
             throws GithubApiException, IOException, InterruptedException {
 
-        List<Team> filteredTeams = githubApi
-                .fetchTeams(organizationName).stream()
+        List<Team> allTeams = githubApi.fetchTeams(organizationName);
+        System.out.printf("%d teams found in the organization '%s'.%n", allTeams.size(), organizationName);
+
+        List<Team> filteredTeams = allTeams.stream()
                 .filter(team -> isGroupTeam(team.displayName()))
                 .toList();
+        System.out.printf("%d teams match the group naming convention.%n", filteredTeams.size());
 
         List<Group> groupTeams = new ArrayList<>();
         for (var team : filteredTeams) {
@@ -143,8 +146,14 @@ public class Main {
             SolutionsDetectionStrategy solutionsDetector)
             throws GithubApiException, IOException, InterruptedException {
 
-        return githubApi.fetchAllRepositories(organizationName).stream()
+        var allRepos = githubApi.fetchAllRepositories(organizationName);
+        System.out.printf("%d repositories found in the organization '%s'.%n", allRepos.size(), organizationName);
+
+        var solutionRepos = allRepos.stream()
                 .filter(solutionsDetector::isSolutionRepository)
                 .toList();
+        System.out.printf("%d repositories match the solution naming convention.%n", solutionRepos.size());
+
+        return solutionRepos;
     }
 }
