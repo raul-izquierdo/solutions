@@ -12,12 +12,11 @@ public final class TeamNaming {
 
     private static final String PREFIX = "group ";
 
-    public static String toTeam(String group) {
-        notNull(group, "group");
-
-        return PREFIX + group;
-    }
-
+    /**
+     * Returns the name of the team corresponding to the given group.
+     * Example:
+     * "group 1" -> "1"
+     */
     public static String toGroup(String teamName) {
         notNull(teamName, "teamName");
 

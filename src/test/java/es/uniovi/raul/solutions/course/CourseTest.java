@@ -24,9 +24,9 @@ class CourseTest {
 
         // Create groups directly
         Group groupA1 = new Group("A1", "a1", Optional.of(schedule.get("A1")),
-                "org", api, detector);
+                api, "org", detector);
         Group groupB2 = new Group("B2", "b2", Optional.empty(),
-                "org", api, detector);
+                api, "org", detector);
 
         List<String> solutions = List.of("katas-solution", "lab1-solution");
 
@@ -51,10 +51,6 @@ class CourseTest {
         // Solutions list filtered
         var sols = course.solutions();
         assertEquals(List.of("katas-solution", "lab1-solution"), sols);
-
-        // solutionExists helper
-        assertTrue(course.solutionExists("katas-solution"));
-        assertFalse(course.solutionExists("project"));
     }
 
     @Test
@@ -73,8 +69,8 @@ class CourseTest {
         SolutionsDetectionStrategy detector = mock(SolutionsDetectionStrategy.class);
 
         // Create two groups with name "X" (duplicate names allowed)
-        Group groupX1 = new Group("X", "x", Optional.empty(), "org", api, detector);
-        Group groupX2 = new Group("X", "x-dup", Optional.empty(), "org", api, detector);
+        Group groupX1 = new Group("X", "x", Optional.empty(), api, "org", detector);
+        Group groupX2 = new Group("X", "x-dup", Optional.empty(), api, "org", detector);
 
         Course course = new Course(List.of(groupX1, groupX2), List.of());
 
@@ -93,7 +89,7 @@ class CourseTest {
         SolutionsDetectionStrategy detector = mock(SolutionsDetectionStrategy.class);
 
         // Only group B2 is present
-        Group groupB2 = new Group("B2", "b2", Optional.empty(), "org", api, detector);
+        Group groupB2 = new Group("B2", "b2", Optional.empty(), api, "org", detector);
 
         Course course = new Course(List.of(groupB2), List.of());
 

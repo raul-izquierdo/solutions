@@ -15,31 +15,42 @@ import es.uniovi.raul.solutions.github.GithubApi.GithubApiException;
  */
 public final class Group {
 
-    private final String name;
+    private final String groupName;
     private final String teamSlug;
     private final Optional<Schedule> schedule;
     private final String organizationName;
     private final GithubApi githubApi;
-    private final SolutionsDetectionStrategy solutionIdentifier;
+    private final SolutionsDetectionStrategy solutionDetectionStrategy;
 
     // Accesible solutions -> solution repositories that the group has access to. This is a subset of the solutions in the course. Lazily loaded and cached.
     private List<String> accesibleSolutions; // null = not loaded yet
 
-    public Group(String name, String teamSlug, Optional<Schedule> schedule,
-            String organizationName, GithubApi githubApi, SolutionsDetectionStrategy solutionIdentifier) {
-        notNull(name, teamSlug, schedule, organizationName, githubApi, solutionIdentifier);
+    /**
+     * Constructs a Group with the specified configuration for managing a GitHub classroom group.
+     *
+     * @param groupName the name that is shown to the user, must not be null
+     * @param teamSlug the ID for the team on GitHub, must not be null
+     * @param schedule an optional schedule for the group, must not be null
+     * @param githubApi the GitHub API wrapper for interacting with GitHub services, must not be null
+     * @param organizationName the name of the GitHub organization where the solutions are hosted, must not be null
+     * @param solutionDetectionStrategy the strategy used to detect solutions, must not be null
+     * @throws IllegalArgumentException if any parameter is null
+     */
+    public Group(String groupName, String teamSlug, Optional<Schedule> schedule,
+            GithubApi githubApi, String organizationName, SolutionsDetectionStrategy solutionDetectionStrategy) {
+        notNull(groupName, teamSlug, schedule, organizationName, githubApi, solutionDetectionStrategy);
 
-        this.name = name;
+        this.groupName = groupName;
         this.teamSlug = teamSlug;
         this.schedule = schedule;
         this.organizationName = organizationName;
         this.githubApi = githubApi;
-        this.solutionIdentifier = solutionIdentifier;
+        this.solutionDetectionStrategy = solutionDetectionStrategy;
         this.accesibleSolutions = null; // Lazy loading
     }
 
     public String name() {
-        return name;
+        return groupName;
     }
 
     public Optional<Schedule> schedule() {
@@ -57,6 +68,7 @@ public final class Group {
      */
     public List<String> getAccesibleSolutions()
             throws GithubApiException, IOException, InterruptedException {
+
         return fetchSolutionsIfNeeded();
     }
 
@@ -92,9 +104,10 @@ public final class Group {
     // Lazy loading of the solution repositories that the group has access to.
     private List<String> fetchSolutionsIfNeeded()
             throws GithubApiException, IOException, InterruptedException {
-        if (accesibleSolutions == null) {
+
+        if (accesibleSolutions == null)
             accesibleSolutions = fetchAccesibleSolutions();
-        }
+
         return Collections.unmodifiableList(accesibleSolutions);
     }
 
@@ -105,7 +118,7 @@ public final class Group {
         return githubApi
                 .fetchRepositoriesForTeam(organizationName, teamSlug)
                 .stream()
-                .filter(solutionIdentifier::isSolutionRepository)
+                .filter(solutionDetectionStrategy::isSolutionRepository)
                 .map(this::extractRepositoryName)
                 .toList();
     }

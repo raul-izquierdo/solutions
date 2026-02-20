@@ -28,7 +28,7 @@ class LazyLoadingTest {
         when(mockIdentifier.isSolutionRepository("other-repo")).thenReturn(false);
 
         Group group = new Group("TestGroup", "team-slug", Optional.empty(),
-                "org", mockApi, mockIdentifier);
+                mockApi, "org", mockIdentifier);
 
         // Act & Assert
         // At this point, no API call should have been made yet
@@ -61,7 +61,7 @@ class LazyLoadingTest {
         when(mockIdentifier.isSolutionRepository("solution1")).thenReturn(true);
 
         Group group = new Group("TestGroup", "team-slug", Optional.empty(),
-                "org", mockApi, mockIdentifier);
+                mockApi, "org", mockIdentifier);
 
         // Act & Assert
         assertTrue(group.hasAccessTo("solution1"));

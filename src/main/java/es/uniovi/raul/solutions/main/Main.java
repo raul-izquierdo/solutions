@@ -133,7 +133,7 @@ public class Main {
             var group = toGroup(team.displayName());
             groupTeams.add(
                     new Group(group, team.slug(), Optional.ofNullable(schedule.get(group)),
-                            organizationName, githubApi, solutionsDetector));
+                            githubApi, organizationName, solutionsDetector));
         }
 
         return groupTeams;

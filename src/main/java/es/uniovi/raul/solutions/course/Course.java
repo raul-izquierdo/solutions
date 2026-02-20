@@ -17,13 +17,8 @@ public record Course(List<Group> groups, List<String> solutions) {
 
     public Course {
         notNull(groups, solutions);
+
         groups = List.copyOf(groups);
         solutions = List.copyOf(solutions);
-    }
-
-    public boolean solutionExists(String solution) {
-        notNull(solution);
-
-        return solutions.contains(solution);
     }
 }

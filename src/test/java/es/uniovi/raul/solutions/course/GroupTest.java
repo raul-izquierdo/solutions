@@ -31,7 +31,7 @@ class GroupTest {
             throw new RuntimeException(e);
         }
 
-        return new Group(name, teamSlug, schedule, org, api, identifier);
+        return new Group(name, teamSlug, schedule, api, org, identifier);
     }
 
     @Test
@@ -60,17 +60,17 @@ class GroupTest {
         SolutionsDetectionStrategy identifier = mock(SolutionsDetectionStrategy.class);
 
         assertThrows(IllegalArgumentException.class,
-                () -> new Group(null, "slug", Optional.empty(), "org", api, identifier));
+                () -> new Group(null, "slug", Optional.empty(), api, "org", identifier));
         assertThrows(IllegalArgumentException.class,
-                () -> new Group("G", null, Optional.empty(), "org", api, identifier));
+                () -> new Group("G", null, Optional.empty(), api, "org", identifier));
         assertThrows(IllegalArgumentException.class,
-                () -> new Group("G", "slug", null, "org", api, identifier));
+                () -> new Group("G", "slug", null, api, "org", identifier));
         assertThrows(IllegalArgumentException.class,
-                () -> new Group("G", "slug", Optional.empty(), null, api, identifier));
+                () -> new Group("G", "slug", Optional.empty(), api, null, identifier));
         assertThrows(IllegalArgumentException.class,
-                () -> new Group("G", "slug", Optional.empty(), "org", null, identifier));
+                () -> new Group("G", "slug", Optional.empty(), null, "org", identifier));
         assertThrows(IllegalArgumentException.class,
-                () -> new Group("G", "slug", Optional.empty(), "org", api, null));
+                () -> new Group("G", "slug", Optional.empty(), api, "org", null));
     }
 
     @Test
@@ -102,7 +102,7 @@ class GroupTest {
                 .thenReturn(List.of("org/solution1", "org/solution2"));
         when(identifier.isSolutionRepository(anyString())).thenReturn(true);
 
-        Group group = new Group("G1", "team-slug", Optional.empty(), "org", api, identifier);
+        Group group = new Group("G1", "team-slug", Optional.empty(), api, "org", identifier);
 
         // Initial state - only solution1
         assertEquals(List.of("solution1"), group.getAccesibleSolutions());
@@ -127,7 +127,7 @@ class GroupTest {
                 .thenReturn(List.of("org/solution1"));
         when(identifier.isSolutionRepository(anyString())).thenReturn(true);
 
-        Group group = new Group("G1", "team-slug", Optional.empty(), "org", api, identifier);
+        Group group = new Group("G1", "team-slug", Optional.empty(), api, "org", identifier);
 
         // Initial state - both solutions
         assertEquals(List.of("solution1", "solution2"), group.getAccesibleSolutions());
