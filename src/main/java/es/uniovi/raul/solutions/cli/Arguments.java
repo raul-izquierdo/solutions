@@ -4,7 +4,7 @@ import picocli.CommandLine.*;
 
 // CHECKSTYLE:OFF
 
-@Command(name = "solutions", version = "1.4.3", showDefaultValues = true, mixinStandardHelpOptions = true, usageHelpAutoWidth = true, description = Messages.DESCRIPTION, footer = Messages.CREDITS)
+@Command(name = "solutions", showDefaultValues = true, mixinStandardHelpOptions = true, usageHelpAutoWidth = true, description = Messages.DESCRIPTION, footer = Messages.CREDITS, versionProvider = PomVersionReader.class)
 public class Arguments {
 
     @Option(names = "-t", description = "GitHub API access token. If not provided, it will try to read from the GITHUB_TOKEN environment variable or from a '.env' file.")
@@ -32,8 +32,15 @@ class Messages {
 
     static final String CREDITS = """
 
-            Escuela de Ingeniería Informática, Universidad de Oviedo.
+            Escuela de Ingeniería
+            Informática, Universidad de Oviedo.
             Raúl Izquierdo Castanedo (raul@uniovi.es)
             """;
 
+}
+
+class PomVersionReader implements IVersionProvider {
+    public String[] getVersion() throws Exception {
+        return new String[] { Arguments.class.getPackage().getImplementationVersion() };
+    }
 }
