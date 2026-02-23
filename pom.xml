@@ -6,7 +6,7 @@
 
     <groupId>es.uniovi.raul</groupId>
     <artifactId>${project.name}</artifactId>
-    <version>1.4.3</version>
+    <version>1.5.0</version>
 
     <url>https://github.com/raul-izquierdo/${project.name}</url>
 
@@ -16,7 +16,6 @@
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
 
     <build>
 
